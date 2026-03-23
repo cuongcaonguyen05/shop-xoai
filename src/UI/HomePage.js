@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './HomePage.css';
-import sliderImg from '../Resource/home_shipping_fee.webp';   // ← import ảnh vào component
+import ProductCategory from './ProductCategory';
+import sliderImg from '../Resource/home_shipping_fee.webp';
 
 // ===== DỮ LIỆU MẪU =====
 const categories = [
@@ -83,39 +84,11 @@ function ProductCard({ p, onAdd, added }) {
   );
 }
 
-// ===== COMPONENT CON: SIDEBAR DANH MỤC =====
-function CategorySidebar({ active, onSelect, openCat, onToggle }) {
-  return (
-    <aside className="sidebar">
-      <div className="sidebar-title">📋 Danh mục sản phẩm</div>
-      {categories.map((cat, i) => (
-        <div key={i}>
-          <div
-            className={`sidebar-item ${active === cat.label ? 'sidebar-item--active' : ''}`}
-            onClick={() => { onSelect(cat.label); if (cat.sub.length) onToggle(i); }}
-          >
-            <span>{cat.icon} {cat.label}</span>
-            {cat.sub.length > 0 && <span className="sidebar-arrow">{openCat === i ? '▴' : '▾'}</span>}
-          </div>
-          {openCat === i && cat.sub.length > 0 && (
-            <div className="sidebar-sub">
-              {cat.sub.map((s, j) => (
-                <div key={j} className="sidebar-sub-item">› {s}</div>
-              ))}
-            </div>
-          )}
-        </div>
-      ))}
-    </aside>
-  );
-}
-
 // ===== COMPONENT CHÍNH =====
 export default function HomePage() {
   const [cart, setCart] = useState([]);
   const [addedId, setAddedId] = useState(null);
   const [activeCat, setActiveCat] = useState('Tất cả');
-  const [openCat, setOpenCat] = useState(null);
   const [search, setSearch] = useState('');
 
   const addToCart = (id) => {
@@ -193,6 +166,7 @@ export default function HomePage() {
             <div><strong>4.9★</strong><span>Đánh giá</span></div>
           </div>
         </div>
+
         {/* ẢNH BANNER GIỮA HERO */}
         <div className="hero-banner-img">
           <img src={sliderImg} alt="Các mức phí ship" />
@@ -210,11 +184,11 @@ export default function HomePage() {
 
       {/* BODY: SIDEBAR + NỘI DUNG CHÍNH */}
       <div className="body-layout">
-        <CategorySidebar
+
+        {/* ← ProductCategory tự quản lý openCat bên trong, không cần truyền */}
+        <ProductCategory
           active={activeCat}
           onSelect={setActiveCat}
-          openCat={openCat}
-          onToggle={i => setOpenCat(openCat === i ? null : i)}
         />
 
         <main className="main-content">
