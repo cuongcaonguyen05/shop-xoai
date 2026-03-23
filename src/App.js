@@ -1,12 +1,15 @@
-import logo from './logo.svg';
-import './App.css';
+import { Routes, Route } from 'react-router-dom';
 import HomePage from './UI/HomePage';
 
 function App() {
   return (
-    <div>
-      <HomePage />
-    </div>
+    <Routes>
+      <Route path="/"            element={<HomePage />} />
+      <Route path="/gioi-thieu"  element={<div>Trang Giới thiệu</div>} />
+      <Route path="/san-pham"    element={<div>Trang Sản phẩm</div>} />
+      <Route path="/tin-tuc"     element={<div>Trang Tin tức</div>} />
+      <Route path="/lien-he"     element={<div>Trang Liên hệ</div>} />
+    </Routes>
   );
 }
 
