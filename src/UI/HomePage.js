@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import './HomePage.css';
 import ProductCategory from './ProductCategory';
+import ProductCard from './ProductCard';
 import sliderImg from '../Resource/home_shipping_fee.webp';
+import img_test_product_card from '../Resource/ProductCard/coquetdau.webp';
 
 // ===== DỮ LIỆU MẪU =====
 const categories = [
@@ -43,59 +45,29 @@ const posts = [
   { title: 'Cách chọn máy hút sữa phù hợp cho mẹ', date: '05/03/2025', emoji: '🤱' },
 ];
 
-function fmt(n) {
-  return n.toLocaleString('vi-VN') + 'đ';
-}
-
 // ===== COMPONENT CON: SAO ĐÁNH GIÁ =====
-function StarRating({ rating }) {
-  return (
-    <div className="stars">
-      {[1,2,3,4,5].map(i => (
-        <span key={i} style={{ color: i <= Math.round(rating) ? '#f59e0b' : '#d1d5db' }}>★</span>
-      ))}
-      <span className="rating-num">{rating}</span>
-    </div>
-  );
-}
-
-// ===== COMPONENT CON: THẺ SẢN PHẨM =====
-function ProductCard({ p, onAdd, added }) {
-  const discount = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : null;
-  return (
-    <div className={`product-card ${added ? 'product-card--added' : ''}`}>
-      {p.tag && <span className="product-tag">{p.tag}</span>}
-      {discount && <span className="product-discount">-{discount}%</span>}
-      <div className="product-img">{p.emoji}</div>
-      <div className="product-info">
-        <p className="product-cat">{p.cat}</p>
-        <h3 className="product-name">{p.name}</h3>
-        <StarRating rating={p.rating} />
-        <span className="product-reviews">({p.reviews} đánh giá)</span>
-        <div className="product-price-row">
-          <strong className="product-price">{fmt(p.price)}</strong>
-          {p.oldPrice && <s className="product-old-price">{fmt(p.oldPrice)}</s>}
-        </div>
-        <button className="btn-add" onClick={() => onAdd(p.id)}>
-          {added ? '✓ Đã thêm' : '🛒 Thêm vào giỏ'}
-        </button>
-      </div>
-    </div>
-  );
-}
+// function StarRating({ rating }) {
+//   return (
+//     <div className="stars">
+//       {[1,2,3,4,5].map(i => (
+//         <span key={i} style={{ color: i <= Math.round(rating) ? '#f59e0b' : '#d1d5db' }}>★</span>
+//       ))}
+//       <span className="rating-num">{rating}</span>
+//     </div>
+//   );
+// }
 
 // ===== COMPONENT CHÍNH =====
 export default function HomePage() {
   const [cart, setCart] = useState([]);
-  const [addedId, setAddedId] = useState(null);
   const [activeCat, setActiveCat] = useState('Tất cả');
   const [search, setSearch] = useState('');
 
-  const addToCart = (id) => {
-    setCart(c => [...c, id]);
-    setAddedId(id);
-    setTimeout(() => setAddedId(null), 1200);
-  };
+  // const addToCart = (id) => {
+  //   setCart(c => [...c, id]);
+  //   setAddedId(id);
+  //   setTimeout(() => setAddedId(null), 1200);
+  // };
 
   const filteredProducts = featuredProducts.filter(p => {
     const matchCat = activeCat === 'Tất cả' || p.cat === activeCat;
@@ -214,15 +186,13 @@ export default function HomePage() {
             <span className="product-count">{filteredProducts.length} sản phẩm</span>
           </div>
 
-          {filteredProducts.length === 0 ? (
-            <div className="empty-state">😔 Không tìm thấy sản phẩm phù hợp</div>
-          ) : (
-            <div className="product-grid">
-              {filteredProducts.map(p => (
-                <ProductCard key={p.id} p={p} onAdd={addToCart} added={addedId === p.id} />
-              ))}
-            </div>
-          )}
+          <ProductCard
+            image={img_test_product_card}
+            name="Cọ quét dầu"
+            price={10000}
+            oldPrice={12000}
+            onAdd={() => console.log('Đã thêm!')}
+          />
 
           {/* TIN TỨC */}
           <div className="section-header" style={{ marginTop: 48 }}>
