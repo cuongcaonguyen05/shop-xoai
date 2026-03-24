@@ -26,56 +26,67 @@ import img_menu_icon_phone from '../Resource/menu_icon_phone.webp';
 const categories = [
   {
     label: 'Ghế ăn dặm',
+    value: 'chair',                              // ← thêm
     imgSrc: img_menu_icon_chair,
     sub: [],
   },
   {
     label: 'Máy xay, nồi chảo',
+    value: 'pot_and_pan_grinder',                            // ← thêm
     imgSrc: img_menu_icon_pot_and_pan_grinder,
     sub: ['Máy xay', 'Nồi chảo'],
   },
   {
     label: 'Đồ dùng bếp',
+    value: 'kitchen',                            // ← thêm
     imgSrc: img_menu_icon_kitchen_utensils,
     sub: ['Dụng cụ làm bếp', 'Hộp, khay trữ thực phẩm', 'Các loại khuôn tạo hình', 'Cân'],
   },
   {
     label: 'Dụng cụ ăn uống',
+    value: 'utensils',                           // ← thêm
     imgSrc: img_menu_icon_eating_utensils,
     sub: ['Khay, bát, thìa', 'Yếm', 'Bình nước', 'Phụ kiện cho bé'],
   },
   {
     label: 'Dành cho mẹ sau sinh',
+    value: 'postpartum',                         // ← thêm
     imgSrc: img_menu_icon_for_postpartum_mothers,
     sub: [],
   },
   {
     label: 'Gia vị ăn dặm',
+    value: 'spice',                              // ← thêm
     imgSrc: img_menu_icon_spice,
     sub: [],
   },
   {
     label: 'Thực phẩm ăn liền',
+    value: 'instant_food',                       // ← thêm
     imgSrc: img_menu_icon_instant_food,
     sub: [],
   },
   {
     label: 'Các loại bột, hạt hữu cơ',
+    value: 'organic_flour',                      // ← thêm
     imgSrc: img_menu_icon_organic_grains_and_flour,
     sub: [],
   },
   {
     label: 'Nui, mì, bún',
+    value: 'noodles',                            // ← thêm
     imgSrc: img_menu_icon_noodles_and_vermicelli,
     sub: [],
   },
   {
     label: 'Sữa, men vi sinh, vitamin',
+    value: 'milk',                               // ← thêm
     imgSrc: img_menu_icon_milk_and_vitamins,
     sub: [],
   },
   {
     label: 'Đồ chơi giáo dục',
+    value: 'toys',                               // ← thêm
     imgSrc: img_menu_icon_educational_toys,
     sub: [],
   }
@@ -115,9 +126,9 @@ export default function ProductCategory({ active, onSelect }) {
           <li key={i}>
             {/* ITEM CHÍNH */}
             <div
-              className={`csb-item ${active === cat.label ? 'csb-item--active' : ''}`}
+              className={`csb-item ${active === cat.value ? 'csb-item--active' : ''}`}
               onClick={() => {
-                onSelect(cat.label);
+                onSelect(cat.value);
                 if (cat.sub.length > 0) handleToggle(i);
               }}
             >

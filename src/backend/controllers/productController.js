@@ -2,7 +2,12 @@ const Product = require('../models/Product');
 
 exports.getProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const { category } = req.query; // ?category=chair
+
+    const filter = {};
+    if (category) filter.category = category;
+
+    const products = await Product.find(filter);
     res.json(products);
   } catch (err) {
     res.status(500).json({ message: err.message });
