@@ -15,6 +15,7 @@ exports.getProductById = async (req, res) => {
     if (!product) return res.status(404).json({ message: 'Không tìm thấy' });
     res.json(product);
   } catch (err) {
+    if (err.name === 'CastError') return res.status(400).json({ message: 'ID không hợp lệ' });
     res.status(500).json({ message: err.message });
   }
 };
@@ -34,6 +35,7 @@ exports.updateProduct = async (req, res) => {
     const product = await Product.findByIdAndUpdate(
       req.params.id, req.body, { new: true }
     );
+    if (!product) return res.status(404).json({ message: 'Không tìm thấy' });
     res.json(product);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -42,7 +44,8 @@ exports.updateProduct = async (req, res) => {
 
 exports.deleteProduct = async (req, res) => {
   try {
-    await Product.findByIdAndDelete(req.params.id);
+    const product = await Product.findByIdAndDelete(req.params.id);
+    if (!product) return res.status(404).json({ message: 'Không tìm thấy' });
     res.json({ message: 'Đã xóa' });
   } catch (err) {
     res.status(500).json({ message: err.message });
