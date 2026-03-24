@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { Link } from 'react-router-dom';
-import "./HomePage.css";
-import ProductCategory from "./ProductCategory";
-import ProductCard from "./ProductCard";
-import sliderImg from "../Resource/home_shipping_fee.webp";
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import "./index.css";
+import ProductCategory from "../Components/ProductCategory";
+import ProductCard from "../Components/ProductCard";
 import img_test_product_card from "../Resource/ProductCard/coquetdau.webp";
 
 // ===== DỮ LIỆU MẪU =====
@@ -172,13 +171,25 @@ export default function HomePage() {
   const [cart, setCart] = useState([]);
   const [activeCat, setActiveCat] = useState("Tất cả");
   const [search, setSearch] = useState("");
-
   const [addedId, setAddedId] = useState(null);
+
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const addToCart = (id) => {
     setCart((c) => [...c, id]);
     setAddedId(id);
     setTimeout(() => setAddedId(null), 1200);
+  };
+
+  const handleHomeClick = () => {
+    if (location.pathname === '/') {
+      // Nếu đang ở trang chủ, reload page
+      window.location.href = '/';
+    } else {
+      // Nếu ở trang khác, navigate về trang chủ
+      navigate('/');
+    }
   };
 
   const filteredProducts = featuredProducts.filter((p) => {
@@ -228,7 +239,7 @@ export default function HomePage() {
         </div>
 
         <nav className="main-nav">
-          <Link to="/"            className="nav-link">Trang chủ</Link>
+          <a href="#!" onClick={handleHomeClick} className="nav-link">Trang chủ</a>
           <Link to="/gioi-thieu"  className="nav-link">Giới thiệu</Link>
           <Link to="/san-pham"    className="nav-link">Sản phẩm</Link>
           <Link to="/tin-tuc"     className="nav-link">Tin tức</Link>
