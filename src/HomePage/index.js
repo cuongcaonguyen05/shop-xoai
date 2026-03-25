@@ -30,6 +30,7 @@ export default function HomePage() {
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState(null);
   const [search, setSearch]       = useState("");
+  const [openNav, setOpenNav]     = useState(null); // ← thêm dòng này
 
   const navigate  = useNavigate();
   const location  = useLocation();
@@ -116,11 +117,78 @@ export default function HomePage() {
         </div>
 
         <nav className="main-nav">
-          <a href="#!" onClick={handleHomeClick} className="nav-link">Trang chủ</a>
+          {/* Trang chủ, Giới thiệu, Tin tức, Liên hệ — bình thường */}
+          <Link to="/"           className="nav-link">Trang chủ</Link>
           <Link to="/gioi-thieu" className="nav-link">Giới thiệu</Link>
-          <Link to="/san-pham"   className="nav-link">Sản phẩm</Link>
-          <Link to="/tin-tuc"    className="nav-link">Tin tức</Link>
-          <Link to="/lien-he"    className="nav-link">Liên hệ</Link>
+
+          {/* Sản phẩm — có dropdown */}
+          <div
+            className="nav-item-dropdown"
+            onMouseEnter={() => setOpenNav('sanpham')}
+            onMouseLeave={() => setOpenNav(null)}
+          >
+            <span className="nav-link">Sản phẩm ▾</span>
+
+            {openNav === 'sanpham' && (
+              <div className="nav-dropdown">
+                {[
+                  { label: 'Ghế ăn dặm',              value: 'chair' },
+                  { label: 'Máy xay, nồi chảo',        value: 'pot_and_pan_grinder' },
+                  { label: 'Đồ dùng bếp',              value: 'kitchen' },
+                  { label: 'Dụng cụ ăn uống',          value: 'utensils' },
+                  { label: 'Dành cho mẹ sau sinh',     value: 'postpartum' },
+                  { label: 'Gia vị ăn dặm',            value: 'spice' },
+                  { label: 'Thực phẩm ăn liền',        value: 'instant_food' },
+                  { label: 'Các loại bột, hạt hữu cơ', value: 'organic_flour' },
+                  { label: 'Nui, mì, bún',             value: 'noodles' },
+                  { label: 'Sữa, men vi sinh, vitamin', value: 'milk' },
+                  { label: 'Đồ chơi giáo dục',         value: 'toys' },
+                ].map((cat) => (
+                  <div
+                    key={cat.value}
+                    className="nav-dropdown-item"
+                    onClick={() => {
+                      setActiveCat(cat.label);  // cập nhật filter sidebar
+                      setOpenNav(null);
+                    }}
+                  >
+                    {cat.label}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Sản phẩm — có dropdown */}
+          <div
+            className="nav-item-dropdown"
+            onMouseEnter={() => setOpenNav('tintuc')}
+            onMouseLeave={() => setOpenNav(null)}
+          >
+            <span className="nav-link">Tin tức ▾</span>
+
+            {openNav === 'tintuc' && (
+              <div className="nav-dropdown">
+                {[
+                  { label: 'Thông tin hữu ích',               value: 'chair' },
+                  { label: 'Công thức món ăn',                value: 'pot_and_pan_grinder' },
+                ].map((cat) => (
+                  <div
+                    key={cat.value}
+                    className="nav-dropdown-item"
+                    onClick={() => {
+                      setActiveCat(cat.label);  // cập nhật filter sidebar
+                      setOpenNav(null);
+                    }}
+                  >
+                    {cat.label}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <Link to="/lien-he" className="nav-link">Liên hệ</Link>
         </nav>
       </header>
 
