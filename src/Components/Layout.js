@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation, Outlet } from 'react-router-dom';
 import './Layout.css';
+import logoImg      from '../Resource/logo/logo.jpg';
 import iconShopee   from '../Resource/contact/shopee.png';
 import iconMessenger from '../Resource/contact/messenger.png';
 import iconZalo     from '../Resource/contact/zalo.png';
@@ -36,9 +37,9 @@ export default function Layout() {
       {/* HEADER */}
       <header className="header">
         <div className="header-inner">
-          <div className="logo">
-            <span className="logo-icon">👶</span>
-            <span className="logo-text">Bé<em>Yêu</em>Shop</span>
+          <div className="logo" onClick={handleHomeClick} style={{ cursor: 'pointer' }}>
+            <img src={logoImg} alt="Shop mẹ Thủy" className="logo-img" />
+            <span className="logo-text">Shop mẹ <em>Thủy</em></span>
           </div>
 
           <div className="search-box">

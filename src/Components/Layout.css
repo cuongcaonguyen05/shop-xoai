@@ -60,6 +60,7 @@
   flex-shrink: 0;
 }
 .logo-icon { font-size: 28px; }
+.logo-img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; }
 .logo-text {
   font-family: 'Baloo 2', sans-serif;
   font-size: 22px;
