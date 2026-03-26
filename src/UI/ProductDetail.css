@@ -127,6 +127,24 @@
 .pd-rating-num { font-size: 14px; font-weight: 800; color: #f59e0b; margin-left: 4px; }
 .pd-rating-count { font-size: 13px; color: #9ca3af; margin-left: 2px; }
 
+/* ── SHOPEE LINK ── */
+.pd-shopee-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff3ed;
+  border: 1.5px solid #ff6633;
+  color: #ee4d2d;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 8px 18px;
+  border-radius: 50px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.pd-shopee-link:hover { background: #ee4d2d; color: white; }
+.pd-shopee-logo { width: 20px; height: 20px; object-fit: contain; }
+
 /* ── GIÁ ── */
 .pd-price-block {
   display: flex;

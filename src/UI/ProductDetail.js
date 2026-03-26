@@ -23,17 +23,6 @@ function fmt(n) {
   return n.toLocaleString('vi-VN') + 'đ';
 }
 
-function StarRating({ rating, count }) {
-  return (
-    <div className="pd-stars">
-      {[1,2,3,4,5].map(i => (
-        <span key={i} style={{ color: i <= Math.round(rating) ? '#f59e0b' : '#d1d5db' }}>★</span>
-      ))}
-      <span className="pd-rating-num">{rating}</span>
-      <span className="pd-rating-count">({count} đánh giá)</span>
-    </div>
-  );
-}
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -187,7 +176,13 @@ export default function ProductDetail() {
             Mã sản phẩm: <strong>SP{id.slice(-6).toUpperCase()}</strong>
           </p>
 
-          <StarRating rating={product.rating} count={0} />
+          {/* SAO ĐÁNH GIÁ */}
+          <div className="pd-stars">
+            {[1,2,3,4,5].map(i => (
+              <span key={i} style={{ color: i <= Math.round(product.rating) ? '#f59e0b' : '#d1d5db', fontSize: 18 }}>★</span>
+            ))}
+            <span className="pd-rating-num">{product.rating}/5</span>
+          </div>
 
           {/* GIÁ */}
           <div className="pd-price-block">
@@ -198,10 +193,6 @@ export default function ProductDetail() {
 
           {/* THÔNG TIN NHANH */}
           <div className="pd-meta">
-            <div className="pd-meta-item">
-              <span>⭐</span>
-              <span>Đánh giá: <strong>{product.rating}</strong></span>
-            </div>
             <div className="pd-meta-item">
               <span>🚚</span>
               <span>Miễn ship đơn từ <strong>300K</strong></span>
@@ -232,6 +223,16 @@ export default function ProductDetail() {
               <span className="pd-tag">#{product.tag}</span>
             </div>
           )}
+
+          <a
+            href="https://shopee.vn"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="pd-shopee-link"
+          >
+            <img src="https://down-vn.img.susercontent.com/file/vn-11134233-7ras8-m1pez7n5zcdb34" alt="Shopee" className="pd-shopee-logo" />
+            Xem trên Shopee
+          </a>
         </div>
       </div>
 

@@ -1,0 +1,174 @@
+.contact-root {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 24px 80px;
+  font-family: 'Nunito', sans-serif;
+}
+
+/* ── BREADCRUMB ── */
+.contact-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 32px;
+}
+.contact-breadcrumb a {
+  color: #f472b6;
+  text-decoration: none;
+  font-weight: 600;
+}
+.contact-breadcrumb a:hover { text-decoration: underline; }
+
+/* ── LAYOUT ── */
+.contact-layout {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 32px;
+  align-items: start;
+}
+
+/* ── THÔNG TIN ── */
+.contact-info-box {
+  background: linear-gradient(135deg, #fff9fb, #fff5ee);
+  border: 1.5px solid #fce7f3;
+  border-radius: 20px;
+  padding: 28px;
+  margin-bottom: 24px;
+}
+.contact-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  font-size: 28px;
+}
+.contact-logo-text {
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: #1f2937;
+}
+.contact-logo-text em { font-style: normal; color: #f472b6; }
+.contact-tagline { font-size: 13px; color: #6b7280; margin-bottom: 20px; }
+
+.contact-info-list { display: flex; flex-direction: column; gap: 12px; }
+.contact-info-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #374151;
+}
+.contact-info-icon { font-size: 18px; flex-shrink: 0; }
+.contact-info-item strong { color: #f472b6; }
+
+/* ── FORM ── */
+.contact-form-box {
+  background: white;
+  border: 1.5px solid #fce7f3;
+  border-radius: 20px;
+  padding: 28px;
+}
+.contact-form-title {
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+.contact-form-sub { font-size: 13px; color: #9ca3af; margin-bottom: 24px; }
+
+.contact-form { display: flex; flex-direction: column; gap: 14px; }
+.contact-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.contact-field input,
+.contact-field textarea {
+  width: 100%;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  color: #1f2937;
+  outline: none;
+  transition: border-color 0.2s;
+  resize: none;
+  background: #fafafa;
+}
+.contact-field input:focus,
+.contact-field textarea:focus {
+  border-color: #f472b6;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(244,114,182,0.1);
+}
+.contact-field input::placeholder,
+.contact-field textarea::placeholder { color: #9ca3af; }
+
+.contact-submit {
+  background: linear-gradient(90deg, #f472b6, #fb923c);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 14px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.02em;
+}
+.contact-submit:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(244,114,182,0.35); }
+.contact-submit--sent { background: #34d399; }
+
+/* ── BẢN ĐỒ ── */
+.contact-right { display: flex; flex-direction: column; gap: 20px; }
+.contact-map-wrap {
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1.5px solid #fce7f3;
+  box-shadow: 0 4px 20px rgba(244,114,182,0.1);
+}
+.contact-map-wrap iframe {
+  width: 100%;
+  height: 320px;
+  display: block;
+  border: none;
+}
+
+/* ── KÊNH LIÊN HỆ NHANH ── */
+.contact-channels {
+  background: white;
+  border: 1.5px solid #fce7f3;
+  border-radius: 20px;
+  padding: 24px;
+}
+.contact-channels h3 {
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: #1f2937;
+  margin-bottom: 16px;
+}
+.contact-channel-list { display: flex; flex-direction: column; gap: 12px; }
+.contact-channel-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1.5px solid #f3f4f6;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.contact-channel-item:hover { border-color: #f472b6; background: #fff9fb; }
+.contact-channel-icon {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+.contact-channel-label { font-size: 12px; color: #9ca3af; font-weight: 600; }
+.contact-channel-value { font-size: 14px; font-weight: 700; color: #1f2937; }

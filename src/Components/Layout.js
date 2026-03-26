@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation, Outlet } from 'react-router-dom';
 import './Layout.css';
+import iconShopee   from '../Resource/contact/shopee.png';
+import iconMessenger from '../Resource/contact/messenger.png';
+import iconZalo     from '../Resource/contact/zalo.png';
+import iconTiktok   from '../Resource/contact/tiktok.png';
 
 const filterCategories = [
   { label: "Dụng cụ ăn dặm", value: "chair",        icon: "🍼" },
@@ -146,6 +150,23 @@ export default function Layout() {
           © 2025 BeYêuShop — Mọi quyền được bảo lưu
         </div>
       </footer>
+
+      {/* FLOATING SOCIAL BUTTONS */}
+      <div className="float-social">
+        {[
+          { icon: iconShopee,    href: 'https://shopee.vn',       tooltip: 'Gian hàng Shopee',                   bg: '#ee4d2d' },
+          { icon: iconMessenger, href: 'https://m.me',            tooltip: 'Chat với chúng tôi qua Messenger',   bg: '#0084ff' },
+          { icon: iconZalo,      href: 'https://zalo.me',         tooltip: 'Chat với chúng tôi qua Zalo',        bg: '#0068ff' },
+          { icon: iconTiktok,    href: 'https://tiktok.com',      tooltip: 'Trang TikTok của shop',              bg: '#000000' },
+        ].map((item, i) => (
+          <a key={i} href={item.href} target="_blank" rel="noopener noreferrer"
+            className="float-btn" style={{ background: item.bg }}
+          >
+            <img src={item.icon} alt={item.tooltip} />
+            <span className="float-tooltip">{item.tooltip}</span>
+          </a>
+        ))}
+      </div>
 
     </div>
   );
