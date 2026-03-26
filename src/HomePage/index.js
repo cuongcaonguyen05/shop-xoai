@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useSearchParams } from "react-router-dom";
 import "./index.css";
 import ProductCategory from "../Components/ProductCategory";
 import ProductCard from "../Components/ProductCard";
@@ -24,16 +24,18 @@ const API_URL = 'http://localhost:5000/api/products';
 
 // ===== COMPONENT CHÍNH =====
 export default function HomePage() {
+  const [searchParams] = useSearchParams();
   const [cart, setCart]           = useState([]);
-  const [activeCat, setActiveCat] = useState(null);   // null = tất cả
+  const [activeCat, setActiveCat] = useState(searchParams.get('category') || null);
   const [products, setProducts]   = useState([]);
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState(null);
   const [search, setSearch]       = useState("");
-  const [openNav, setOpenNav]     = useState(null); // ← thêm dòng này
 
-  const navigate  = useNavigate();
-  const location  = useLocation();
+  // ── Đồng bộ activeCat theo URL query param ──
+  useEffect(() => {
+    setActiveCat(searchParams.get('category') || null);
+  }, [searchParams]);
 
   // ── Fetch API mỗi khi activeCat thay đổi ──
   useEffect(() => {
@@ -68,130 +70,12 @@ export default function HomePage() {
     setCart(c => [...c, id]);
   };
 
-  const handleHomeClick = () => {
-    if (location.pathname === '/') {
-      window.location.href = '/';
-    } else {
-      navigate('/');
-    }
-  };
-
   // Tiêu đề section
   const activeCatLabel = filterCategories.find(c => c.value === activeCat)?.label;
   const sectionTitle   = activeCat ? activeCatLabel : "Sản phẩm nổi bật";
 
   return (
-    <div className="shop-root">
-
-      {/* TOP BANNER */}
-      <div className="top-banner">
-        🎉 Miễn phí ship toàn quốc đơn từ <strong>300K</strong> &nbsp;|&nbsp; 🌿
-        Cam kết hàng chính hãng 100% &nbsp;|&nbsp; 📞 Hotline: <strong>1800 6868</strong>
-      </div>
-
-      {/* HEADER */}
-      <header className="header">
-        <div className="header-inner">
-          <div className="logo">
-            <span className="logo-icon">👶</span>
-            <span className="logo-text">Bé<em>Yêu</em>Shop</span>
-          </div>
-
-          <div className="search-box">
-            <span>🔍</span>
-            <input
-              placeholder="Tìm sản phẩm cho bé..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
-          </div>
-
-          <div className="header-actions">
-            <button className="action-btn">👤 Tài khoản</button>
-            <button className="action-btn">📦 Đơn hàng</button>
-            <button className="cart-btn">
-              🛒 Giỏ hàng
-              {cart.length > 0 && <span className="cart-count">{cart.length}</span>}
-            </button>
-          </div>
-        </div>
-
-        <nav className="main-nav">
-          {/* Trang chủ, Giới thiệu, Tin tức, Liên hệ — bình thường */}
-          <Link to="/"           className="nav-link">Trang chủ</Link>
-          <Link to="/gioi-thieu" className="nav-link">Giới thiệu</Link>
-
-          {/* Sản phẩm — có dropdown */}
-          <div
-            className="nav-item-dropdown"
-            onMouseEnter={() => setOpenNav('sanpham')}
-            onMouseLeave={() => setOpenNav(null)}
-          >
-            <span className="nav-link">Sản phẩm ▾</span>
-
-            {openNav === 'sanpham' && (
-              <div className="nav-dropdown">
-                {[
-                  { label: 'Ghế ăn dặm',              value: 'chair' },
-                  { label: 'Máy xay, nồi chảo',        value: 'pot_and_pan_grinder' },
-                  { label: 'Đồ dùng bếp',              value: 'kitchen' },
-                  { label: 'Dụng cụ ăn uống',          value: 'utensils' },
-                  { label: 'Dành cho mẹ sau sinh',     value: 'postpartum' },
-                  { label: 'Gia vị ăn dặm',            value: 'spice' },
-                  { label: 'Thực phẩm ăn liền',        value: 'instant_food' },
-                  { label: 'Các loại bột, hạt hữu cơ', value: 'organic_flour' },
-                  { label: 'Nui, mì, bún',             value: 'noodles' },
-                  { label: 'Sữa, men vi sinh, vitamin', value: 'milk' },
-                  { label: 'Đồ chơi giáo dục',         value: 'toys' },
-                ].map((cat) => (
-                  <div
-                    key={cat.value}
-                    className="nav-dropdown-item"
-                    onClick={() => {
-                      setActiveCat(cat.label);  // cập nhật filter sidebar
-                      setOpenNav(null);
-                    }}
-                  >
-                    {cat.label}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Sản phẩm — có dropdown */}
-          <div
-            className="nav-item-dropdown"
-            onMouseEnter={() => setOpenNav('tintuc')}
-            onMouseLeave={() => setOpenNav(null)}
-          >
-            <span className="nav-link">Tin tức ▾</span>
-
-            {openNav === 'tintuc' && (
-              <div className="nav-dropdown">
-                {[
-                  { label: 'Thông tin hữu ích',               value: 'chair' },
-                  { label: 'Công thức món ăn',                value: 'pot_and_pan_grinder' },
-                ].map((cat) => (
-                  <div
-                    key={cat.value}
-                    className="nav-dropdown-item"
-                    onClick={() => {
-                      setActiveCat(cat.label);  // cập nhật filter sidebar
-                      setOpenNav(null);
-                    }}
-                  >
-                    {cat.label}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <Link to="/lien-he" className="nav-link">Liên hệ</Link>
-        </nav>
-      </header>
-
+    <>
       {/* BODY */}
       <div className="body-layout">
 
@@ -251,6 +135,7 @@ export default function HomePage() {
               {filteredProducts.map(p => (
                 <ProductCard
                   key={p._id}
+                  productId={p._id}
                   image={p.image || img_test_product_card}
                   name={p.name}
                   price={p.price}
@@ -281,41 +166,6 @@ export default function HomePage() {
 
         </main>
       </div>
-
-      {/* FOOTER */}
-      <footer className="footer">
-        <div className="footer-inner">
-          <div className="footer-col">
-            <div className="logo" style={{ marginBottom: 12 }}>
-              <span className="logo-icon">👶</span>
-              <span className="logo-text">Bé<em>Yêu</em>Shop</span>
-            </div>
-            <p>Chuyên cung cấp sản phẩm chất lượng cao cho mẹ và bé.</p>
-          </div>
-          <div className="footer-col">
-            <h4>Danh mục</h4>
-            {filterCategories.slice(0, 4).map((c, i) => (
-              <a key={i} href="#!">{c.label}</a>
-            ))}
-          </div>
-          <div className="footer-col">
-            <h4>Hỗ trợ</h4>
-            {["Chính sách đổi trả", "Hướng dẫn mua hàng", "Câu hỏi thường gặp", "Liên hệ"].map((t, i) => (
-              <a key={i} href="#!">{t}</a>
-            ))}
-          </div>
-          <div className="footer-col">
-            <h4>Liên hệ</h4>
-            <p>📞 1800 6868</p>
-            <p>✉️ hello@beyeushop.vn</p>
-            <p>📍 TP. Biên Hoà, Đồng Nai</p>
-          </div>
-        </div>
-        <div className="footer-bottom">
-          © 2025 BeYêuShop — Mọi quyền được bảo lưu
-        </div>
-      </footer>
-
-    </div>
+    </>
   );
 }
