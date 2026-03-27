@@ -32,26 +32,26 @@ export default function ContactPage() {
           <div className="contact-info-box">
             <div className="contact-logo">
               <span>👶</span>
-              <span className="contact-logo-text">Bé<em>Yêu</em>Shop</span>
+              <span className="contact-logo-text">Shop mẹ <em>Thủy</em></span>
             </div>
             <p className="contact-tagline">Chuyên cung cấp sản phẩm chất lượng cho mẹ và bé</p>
 
             <div className="contact-info-list">
               <div className="contact-info-item">
                 <span className="contact-info-icon">📍</span>
-                <span>Địa chỉ: TP. Biên Hoà, Đồng Nai</span>
+                <span>Địa chỉ: Xã Đô Lương, Tỉnh Nghệ An</span>
               </div>
               <div className="contact-info-item">
                 <span className="contact-info-icon">📞</span>
-                <span>Hotline: <strong>1800 6868</strong> (Miễn phí)</span>
+                <span>Hotline: <strong>0352332840</strong> (Viettel)</span>
               </div>
               <div className="contact-info-item">
                 <span className="contact-info-icon">✉️</span>
-                <span>Email: hello@beyeushop.vn</span>
+                <span>Email: shopandammethuy@gmail.com</span>
               </div>
               <div className="contact-info-item">
                 <span className="contact-info-icon">🕐</span>
-                <span>Giờ làm việc: 8:00 – 21:00, Thứ 2 – Chủ nhật</span>
+                <span>Giờ làm việc: 7:00 – 22:00, Thứ 2 – Chủ nhật</span>
               </div>
             </div>
           </div>
@@ -111,7 +111,7 @@ export default function ContactPage() {
         <div className="contact-right">
           <div className="contact-map-wrap">
             <iframe
-              title="BeYêuShop location"
+              title="ShopMeThuy location"
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.610123046289!2d106.82749167480615!3d10.84177758929613!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3174d863867b4e73%3A0x3e17b8e6c5a56220!2zVGjDoG5oIHBo4buRIEJpw6puIEhvw6AsIMSQ4buTbmcgTmFp!5e0!3m2!1svi!2svn!4v1700000000000"
               allowFullScreen=""
               loading="lazy"
@@ -124,8 +124,8 @@ export default function ContactPage() {
             <h3>Kênh liên hệ nhanh</h3>
             <div className="contact-channel-list">
               {[
-                { icon: '💬', label: 'Zalo', value: '1800 6868', color: '#0068FF' },
-                { icon: '📘', label: 'Facebook', value: 'BeYêuShop Official', color: '#1877F2' },
+                { icon: '💬', label: 'Zalo', value: '0352332840', color: '#0068FF' },
+                { icon: '📘', label: 'Facebook', value: 'Nguyễn Thị Thanh Thủy', color: '#1877F2' },
                 { icon: '📸', label: 'Instagram', value: '@beyeushop.vn', color: '#E4405F' },
                 { icon: '🎵', label: 'TikTok', value: '@beyeushop', color: '#000000' },
               ].map((c, i) => (

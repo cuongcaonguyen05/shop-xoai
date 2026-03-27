@@ -125,7 +125,7 @@ export default function Layout() {
           <div className="footer-col">
             <div className="logo" style={{ marginBottom: 12 }}>
               <span className="logo-icon">👶</span>
-              <span className="logo-text">Bé<em>Yêu</em>Shop</span>
+              <span className="logo-text">Shop mẹ <em>Thủy</em></span>
             </div>
             <p>Chuyên cung cấp sản phẩm chất lượng cao cho mẹ và bé.</p>
           </div>
@@ -143,13 +143,13 @@ export default function Layout() {
           </div>
           <div className="footer-col">
             <h4>Liên hệ</h4>
-            <p>📞 1800 6868</p>
-            <p>✉️ hello@beyeushop.vn</p>
-            <p>📍 TP. Biên Hoà, Đồng Nai</p>
+            <p>📞 0352332840</p>
+            <p>✉️ shopandammethuy@gmail.com</p>
+            <p>📍 Xã Đô Lương, Tỉnh Nghệ An</p>
           </div>
         </div>
         <div className="footer-bottom">
-          © 2025 BeYêuShop — Mọi quyền được bảo lưu
+          © 2025 ShopMeThuy — Mọi quyền được bảo lưu
         </div>
       </footer>
 
