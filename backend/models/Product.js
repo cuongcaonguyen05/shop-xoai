@@ -1,14 +1,16 @@
 const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema({
+  product_id:  { type: String, unique: true, immutable: true },
   name:        { type: String, required: true },
-  description: { type: String },
   price:       { type: Number, required: true },
   old_price:   { type: Number, default: null },
-  category:    { type: String, default: '' },   // ← thêm dòng này
-  image:       { type: String, default: '' },   // ← thêm dòng này
-  tag:         { type: String, default: '' },
-  rating:      { type: Number, default: 0 },
+  category:    { type: String, default: '' },
+  tag:          { type: String, default: '' },
+  rating:       { type: Number, default: 0 },
+  brand:        { type: String, default: '' },
+  like:         { type: Number, default: 0 },
+  product_code: { type: String, default: '' },
 }, {
   timestamps: true,
   collection: 'productcards'

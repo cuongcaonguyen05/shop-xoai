@@ -126,7 +126,7 @@ export default function HomePage() {
 
           {/* KHÔNG CÓ SẢN PHẨM */}
           {!loading && !error && filteredProducts.length === 0 && (
-            <div className="empty-state">😔 Không tìm thấy sản phẩm</div>
+            <div className="empty-state">😔 Hiện tại shop chưa bán sản phẩm thuộc danh mục này!</div>
           )}
 
           {/* PRODUCT GRID */}
