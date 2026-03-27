@@ -123,3 +123,165 @@
 .post-title { font-size: 14px; font-weight: 700; line-height: 1.4; margin-bottom: 8px; }
 .post-link { font-size: 13px; font-weight: 700; color: var(--pink); text-decoration: none; }
 .post-link:hover { text-decoration: underline; }
+
+/* ── NEWS LIST ── */
+.news-list-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+  margin-bottom: 40px;
+}
+.news-list-card {
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+}
+.news-list-card:hover {
+  box-shadow: 0 8px 24px rgba(233,30,140,0.1);
+  transform: translateY(-3px);
+  border-color: #f9a8d4;
+}
+.news-list-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.news-cat-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 50px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.news-cat-info   { background: #eff6ff; color: #3b82f6; }
+.news-cat-recipe { background: #fff7ed; color: #ea580c; }
+.news-list-date  { font-size: 11px; color: var(--muted); }
+.news-list-title {
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: #1e293b;
+  line-height: 1.4;
+  margin: 0;
+}
+.news-list-preview {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin: 0;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.news-list-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.news-read-more { margin-left: auto; color: var(--pink); font-weight: 700; font-size: 12px; }
+
+/* ── NEWS ARTICLE (chi tiết) ── */
+.news-article-wrap { padding-bottom: 40px; }
+.news-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1.5px solid var(--border);
+  color: var(--pink);
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 7px 16px;
+  border-radius: 50px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: background 0.2s;
+}
+.news-back-btn:hover { background: var(--pink-l); }
+.news-article {
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  padding: 32px 36px;
+}
+.news-article-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.news-article-date { font-size: 13px; color: var(--muted); }
+.news-article-title {
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  color: #1e293b;
+  line-height: 1.3;
+  margin-bottom: 8px;
+}
+.news-article-author {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1.5px solid var(--border);
+}
+.news-article-content {
+  font-size: 15px;
+  line-height: 1.9;
+  color: #374151;
+  margin-bottom: 32px;
+}
+.news-article-content p { margin: 0 0 10px; }
+.news-no-content { color: var(--muted); font-style: italic; }
+
+/* ── COMMENTS ── */
+.news-comments-section { border-top: 1.5px solid var(--border); padding-top: 24px; }
+.news-comments-heading {
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 17px;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 16px;
+}
+.news-no-comment { font-size: 13px; color: var(--muted); text-align: center; padding: 16px 0; }
+.news-comment-list { display: flex; flex-direction: column; gap: 12px; }
+.news-comment-item { display: flex; gap: 10px; align-items: flex-start; }
+.news-comment-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fce7f3, #fff0f8);
+  color: var(--pink);
+  font-weight: 800;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1.5px solid #fbcfe8;
+}
+.news-comment-body {
+  flex: 1;
+  background: #fafafa;
+  border: 1px solid #f3f4f6;
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+.news-comment-header { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.news-comment-header strong { font-size: 13px; color: #1e293b; }
+.news-comment-header span  { font-size: 11px; color: var(--muted); }
+.news-comment-body p { margin: 0; font-size: 13px; color: #374151; line-height: 1.6; }

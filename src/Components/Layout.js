@@ -103,7 +103,8 @@ export default function Layout() {
                   { label: 'Thông tin hữu ích', value: 'info' },
                   { label: 'Công thức món ăn',  value: 'recipe' },
                 ].map(cat => (
-                  <div key={cat.value} className="nav-dropdown-item" onClick={() => setOpenNav(null)}>
+                  <div key={cat.value} className="nav-dropdown-item"
+                    onClick={() => { navigate(`/?news=${cat.value}`); setOpenNav(null); }}>
                     {cat.label}
                   </div>
                 ))}
