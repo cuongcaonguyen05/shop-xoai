@@ -129,7 +129,7 @@ export default function CartPage() {
               <span>{fmt(selectedPrice + shipping)}</span>
             </div>
 
-            <button className="cart-checkout-btn" disabled={selectedQty === 0}>
+            <button className="cart-checkout-btn" disabled={selectedQty === 0} onClick={() => navigate('/dat-hang')}>
               Tiến hành đặt hàng →
             </button>
 

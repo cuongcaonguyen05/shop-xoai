@@ -129,9 +129,11 @@ export default function Layout() {
                     </div>
                     {user.role === 'admin'
                       ? <div className="user-dropdown-item" onClick={() => { navigate('/admin'); setOpenNav(null); }}>🏪 Quản lí cửa hàng</div>
-                      : <div className="user-dropdown-item" onClick={() => setOpenNav(null)}>📦 Đơn hàng của tôi</div>
+                      : <>
+                          <div className="user-dropdown-item" onClick={() => { navigate('/tai-khoan'); setOpenNav(null); }}>📋 Thông tin và đơn hàng của tôi</div>
+                        </>
                     }
-                    <div className="user-dropdown-item" onClick={() => { logout(); setOpenNav(null); }}>🚪 Đăng xuất</div>
+                    <div className="user-dropdown-item" onClick={() => { logout(); setOpenNav(null); navigate('/'); }}>🚪 Đăng xuất</div>
                   </div>
                 )}
               </div>

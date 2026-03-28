@@ -10,6 +10,8 @@ import AboutPage from './UI/AboutPage';
 import ContactPage from './UI/ContactPage';
 import NewsPage from './UI/NewsPage';
 import CartPage from './UI/CartPage';
+import CheckoutPage  from './UI/CheckoutPage';
+import AccountPage   from './UI/AccountPage';
 import LoginModal from './Components/LoginModal';
 
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
@@ -27,6 +29,8 @@ function AppInner() {
             <Route path="/lien-he"      element={<ContactPage />} />
             <Route path="/tin-tuc"      element={<NewsPage />} />
             <Route path="/gio-hang"     element={<CartPage />} />
+            <Route path="/dat-hang"     element={<CheckoutPage />} />
+            <Route path="/tai-khoan"    element={<AccountPage />} />
           </Route>
           <Route path="/admin" element={<AdminPage />} />
         </Routes>

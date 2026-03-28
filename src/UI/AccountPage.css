@@ -1,0 +1,366 @@
+.acc-root {
+  min-height: 70vh;
+  padding: 32px 16px 64px;
+  background: #fff9fb;
+}
+.acc-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+@media (max-width: 700px) {
+  .acc-inner { grid-template-columns: 1fr; }
+}
+
+/* SIDEBAR */
+.acc-sidebar {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(244,114,182,0.08);
+  overflow: hidden;
+  position: sticky;
+  top: 100px;
+}
+.acc-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 18px;
+  border-bottom: 1px solid #fce7f3;
+}
+.acc-avatar {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.acc-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f472b6, #fb923c);
+  color: white;
+  font-size: 20px;
+  font-weight: 800;
+}
+.acc-profile-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: #1f2937;
+  line-height: 1.3;
+}
+.acc-profile-sub {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+.acc-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+}
+.acc-nav-item {
+  text-align: left;
+  padding: 12px 18px;
+  border: none;
+  background: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4b5563;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  transition: background 0.15s, color 0.15s;
+}
+.acc-nav-item:hover { background: #fdf2f8; color: #db2777; }
+.acc-nav-item--active { color: #db2777; background: #fdf2f8; border-left: 3px solid #f472b6; }
+
+/* MAIN */
+.acc-main {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(244,114,182,0.08);
+  min-height: 400px;
+}
+
+/* TAB CONTENT SHARED */
+.acc-tab-content { padding: 24px; }
+.acc-tab-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.acc-tab-header h3 {
+  font-size: 17px;
+  font-weight: 800;
+  color: #1f2937;
+}
+.acc-empty {
+  color: #9ca3af;
+  font-size: 14px;
+  padding: 32px 0;
+  text-align: center;
+}
+
+/* ADD BUTTON */
+.acc-btn-add {
+  padding: 8px 18px;
+  background: linear-gradient(90deg, #f472b6, #fb923c);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  transition: opacity 0.2s;
+}
+.acc-btn-add:hover { opacity: 0.88; }
+
+/* FORM */
+.acc-form-box {
+  background: #fdf2f8;
+  border: 1.5px solid #fce7f3;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.acc-form-box h4 {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1f2937;
+  margin-bottom: 14px;
+}
+.acc-form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.acc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+.acc-field label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.acc-field input {
+  border: 1.5px solid #fce7f3;
+  border-radius: 8px;
+  padding: 9px 13px;
+  font-size: 14px;
+  font-family: 'Nunito', sans-serif;
+  outline: none;
+  background: white;
+  transition: border-color 0.2s;
+}
+.acc-field input:focus { border-color: #f472b6; }
+.acc-default-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4b5563;
+  cursor: pointer;
+  margin-bottom: 14px;
+}
+.acc-default-check input { accent-color: #f472b6; width: 15px; height: 15px; }
+.acc-error {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #dc2626;
+  margin-bottom: 12px;
+}
+.acc-form-actions {
+  display: flex;
+  gap: 10px;
+}
+.acc-btn-save {
+  padding: 9px 22px;
+  background: linear-gradient(90deg, #f472b6, #fb923c);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+}
+.acc-btn-cancel {
+  padding: 9px 22px;
+  background: white;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #6b7280;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+}
+
+/* ADDRESS CARDS */
+.acc-address-list { display: flex; flex-direction: column; gap: 12px; }
+.acc-address-card {
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.acc-address-card--default { border-color: #f472b6; background: #fff9fb; }
+.acc-address-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.acc-default-badge {
+  font-size: 11px;
+  font-weight: 700;
+  background: #fce7f3;
+  color: #db2777;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+.acc-address-phone { font-size: 13px; color: #6b7280; margin-bottom: 2px; }
+.acc-address-addr  { font-size: 13px; color: #4b5563; }
+.acc-address-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+.acc-action-link {
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: #db2777;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  padding: 0;
+}
+.acc-action-link:hover { text-decoration: underline; }
+.acc-action-delete { color: #ef4444; }
+
+/* ORDER CARDS */
+.acc-order-list { display: flex; flex-direction: column; gap: 12px; }
+.acc-order-card {
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.acc-order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  cursor: pointer;
+  background: #fafafa;
+  gap: 12px;
+  transition: background 0.15s;
+}
+.acc-order-header:hover { background: #fdf2f8; }
+.acc-order-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.acc-order-id   { font-size: 13px; font-weight: 800; color: #1f2937; }
+.acc-order-date { font-size: 12px; color: #9ca3af; }
+.acc-order-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.acc-order-status { font-size: 13px; font-weight: 700; }
+.acc-order-total  { font-size: 15px; font-weight: 800; color: #db2777; }
+.acc-order-chevron { font-size: 11px; color: #9ca3af; }
+
+.acc-order-detail {
+  padding: 16px 18px;
+  border-top: 1px solid #f3f4f6;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.acc-order-section {
+  font-size: 13px;
+  color: #4b5563;
+  display: flex;
+  gap: 8px;
+}
+.acc-order-label { font-weight: 700; color: #6b7280; white-space: nowrap; }
+
+.acc-order-items { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.acc-order-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.acc-order-img {
+  width: 48px; height: 48px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #fce7f3;
+  flex-shrink: 0;
+}
+.acc-order-img--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fdf2f8;
+  font-size: 20px;
+}
+.acc-order-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.acc-order-item-name { font-size: 13px; font-weight: 700; color: #1f2937; }
+.acc-order-item-qty  { font-size: 12px; color: #9ca3af; }
+.acc-order-item-price { font-size: 13px; font-weight: 700; color: #db2777; white-space: nowrap; }
+
+.acc-order-summary {
+  background: #fdf2f8;
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.acc-order-sum-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #4b5563;
+}
+.acc-order-sum-total {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1f2937;
+  padding-top: 6px;
+  border-top: 1px solid #fce7f3;
+  margin-top: 4px;
+}
+.acc-order-sum-total span:last-child { color: #db2777; }
