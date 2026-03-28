@@ -8,5 +8,6 @@ router.post('/google',       ctrl.googleLogin);
 router.post('/google-token', ctrl.googleTokenLogin);
 router.post('/facebook',  ctrl.facebookLogin);
 router.get('/me',         ctrl.getMe);
+router.get('/users',      ctrl.getAllUsers);
 
 module.exports = router;

@@ -9,11 +9,13 @@ const signToken = (user) =>
   jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
 
 const userPayload = (user) => ({
-  id:     user._id,
-  name:   user.name,
-  email:  user.email,
-  avatar: user.avatar,
-  role:   user.role,
+  id:        user._id,
+  name:      user.name,
+  phone:     user.phone,
+  email:     user.email,
+  avatar:    user.avatar,
+  role:      user.role,
+  createdAt: user.createdAt,
 });
 
 // ── Đăng ký số điện thoại/password ──
@@ -147,6 +149,21 @@ exports.getMe = async (req, res) => {
     const user    = await User.findById(decoded.id).select('-password');
     if (!user) return res.status(404).json({ message: 'Không tìm thấy user.' });
     res.json(userPayload(user));
+  } catch {
+    res.status(401).json({ message: 'Token không hợp lệ.' });
+  }
+};
+
+// GET /api/auth/users — admin: lấy danh sách tất cả user
+exports.getAllUsers = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ message: 'Chưa đăng nhập.' });
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const me = await User.findById(decoded.id).select('role');
+    if (!me || me.role !== 'admin') return res.status(403).json({ message: 'Không có quyền.' });
+    const users = await User.find({}).select('-password').sort({ createdAt: -1 });
+    res.json(users);
   } catch {
     res.status(401).json({ message: 'Token không hợp lệ.' });
   }

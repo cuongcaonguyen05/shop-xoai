@@ -57,6 +57,11 @@
   color: #9ca3af;
   margin-top: 2px;
 }
+.acc-profile-date {
+  font-size: 11px;
+  color: #d1d5db;
+  margin-top: 4px;
+}
 .acc-nav {
   display: flex;
   flex-direction: column;

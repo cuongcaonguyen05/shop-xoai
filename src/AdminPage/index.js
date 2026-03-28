@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import logoImg from '../Resource/logo/logo.jpg';
 import './index.css';
 
@@ -17,6 +19,7 @@ import imgToys         from '../Resource/menu_icon_educational_toys.webp';
 const API_URL       = 'http://localhost:5000/api/products';
 const NEWS_API_URL  = 'http://localhost:5000/api/news';
 const ORDERS_API    = 'http://localhost:5000/api/orders';
+const USERS_API     = 'http://localhost:5000/api/auth/users';
 
 const CATEGORIES = [
   { value: 'chair',               label: 'Ghế ăn dặm',               img: imgChair },
@@ -69,6 +72,8 @@ function useToast() {
 const showToast = (msg, type = 'ok') => _fireToast?.(msg, type);
 
 export default function AdminPage() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [activePage, setActivePage] = useState('dashboard');
 
   // ── Products state ──
@@ -92,6 +97,12 @@ export default function AdminPage() {
   const [orderSearch, setOrderSearch]   = useState('');
   const [orderStatus, setOrderStatus]   = useState('all');
   const [expandedOrder, setExpandedOrder] = useState(null);
+
+  // ── Customers state ──
+  const [customersList, setCustomersList]       = useState([]);
+  const [customersLoading, setCustomersLoading] = useState(false);
+  const [customerSearch, setCustomerSearch]     = useState('');
+  const [expandedCustomer, setExpandedCustomer] = useState(null);
 
   // ── News state ──
   const [newsList, setNewsList]         = useState([]);
@@ -141,9 +152,21 @@ export default function AdminPage() {
     finally { setOrdersLoading(false); }
   }, []);
 
+  // ── Fetch customers ──
+  const fetchCustomers = useCallback(async () => {
+    setCustomersLoading(true);
+    try {
+      const token = localStorage.getItem('shop_token');
+      const res = await fetch(USERS_API, { headers: { Authorization: `Bearer ${token}` } });
+      if (res.ok) setCustomersList(await res.json());
+    } catch (_) {}
+    finally { setCustomersLoading(false); }
+  }, []);
+
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
   useEffect(() => { fetchNews(); }, [fetchNews]);
   useEffect(() => { if (activePage === 'orders') fetchOrders(); }, [activePage, fetchOrders]);
+  useEffect(() => { if (activePage === 'customers') { fetchCustomers(); fetchOrders(); } }, [activePage, fetchCustomers, fetchOrders]);
 
   // ── Product CRUD ──
   const openAdd = () => { setEditId(null); setForm(defaultForm); setFormErr(''); setModalOpen(true); };
@@ -271,6 +294,11 @@ export default function AdminPage() {
     { id: 'news',      label: 'Tin tức',   icon: '📰' },
   ];
 
+  if (!user || user.role !== 'admin') {
+    navigate('/', { replace: true });
+    return null;
+  }
+
   return (
     <div className="admin-root">
 
@@ -324,8 +352,8 @@ export default function AdminPage() {
           </div>
           <div className="adm-topbar-right">
             <button className="adm-btn adm-btn-outline"
-              onClick={activePage === 'news' ? fetchNews : fetchProducts}
-              disabled={loading || newsLoading}>
+              onClick={activePage === 'news' ? fetchNews : activePage === 'orders' ? fetchOrders : activePage === 'customers' ? () => { fetchCustomers(); fetchOrders(); } : fetchProducts}
+              disabled={loading || newsLoading || ordersLoading || customersLoading}>
               🔄 Làm mới
             </button>
             {activePage === 'products' && (
@@ -847,13 +875,114 @@ export default function AdminPage() {
             }
           </div>
 
-          {/* ══════════ CUSTOMERS (placeholder) ══════════ */}
+          {/* ══════════ CUSTOMERS ══════════ */}
           <div className={`adm-page ${activePage === 'customers' ? 'active' : ''}`}>
-            <div className="adm-card" style={{ textAlign: 'center', padding: '56px 20px' }}>
-              <div style={{ fontSize: 52, marginBottom: 14 }}>👥</div>
-              <div style={{ fontFamily: "'Baloo 2', sans-serif", fontSize: 20, fontWeight: 800, marginBottom: 10 }}>Module Khách hàng</div>
-              <p style={{ fontSize: 13, color: '#6b7280', lineHeight: 1.8, maxWidth: 440, margin: '0 auto' }}>Đang phát triển</p>
+            <div style={{ marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div className="adm-search-wrap" style={{ maxWidth: '100%' }}>
+                <span>🔍</span>
+                <input
+                  placeholder="Tìm theo tên, số điện thoại, email..."
+                  value={customerSearch}
+                  onChange={e => setCustomerSearch(e.target.value)}
+                />
+              </div>
             </div>
+
+            {(customersLoading || ordersLoading)
+              ? <div className="adm-loading">Đang tải...</div>
+              : (() => {
+                  const PROVIDER_LABEL = { local: '📱 SĐT', google: '🔵 Google', facebook: '🟣 Facebook' };
+                  const q = customerSearch.toLowerCase();
+                  const filtered = customersList.filter(u => {
+                    if (u.role === 'admin') return false;
+                    if (!q) return true;
+                    return (u.name || '').toLowerCase().includes(q)
+                      || (u.phone || '').includes(q)
+                      || (u.email || '').toLowerCase().includes(q);
+                  });
+                  if (filtered.length === 0) return (
+                    <div className="adm-card" style={{ textAlign: 'center', padding: 40, color: '#9ca3af' }}>
+                      {customerSearch ? 'Không tìm thấy khách hàng nào.' : 'Chưa có khách hàng nào đăng ký.'}
+                    </div>
+                  );
+                  return (
+                    <div className="adm-card" style={{ padding: 0, overflow: 'hidden' }}>
+                      <table className="adm-table">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>Họ tên</th>
+                            <th>Số điện thoại</th>
+                            <th>Email</th>
+                            <th>Đăng ký qua</th>
+                            <th>Ngày tham gia</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filtered.map((u, idx) => {
+                            const userOrders = u.phone ? ordersList.filter(o => o.phone === u.phone) : [];
+                            const totalSpent = userOrders.filter(o => o.status === 'Đã giao hàng').reduce((s, o) => s + (o.total || 0), 0);
+                            const isExpanded = expandedCustomer === u._id;
+                            return (
+                              <>
+                                <tr key={u._id} style={{ cursor: 'pointer' }}
+                                  onClick={() => setExpandedCustomer(isExpanded ? null : u._id)}>
+                                  <td style={{ color: '#9ca3af', fontWeight: 600 }}>{idx + 1}</td>
+                                  <td>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                      {u.avatar
+                                        ? <img src={u.avatar} alt="" style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+                                        : <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#fce7f3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#db2777', flexShrink: 0 }}>
+                                            {(u.name || '?')[0].toUpperCase()}
+                                          </div>
+                                      }
+                                      <span style={{ fontWeight: 600 }}>{u.name}</span>
+                                    </div>
+                                  </td>
+                                  <td>{u.phone || <span style={{ color: '#d1d5db' }}>—</span>}</td>
+                                  <td style={{ color: '#6b7280' }}>{u.email || <span style={{ color: '#d1d5db' }}>—</span>}</td>
+                                  <td><span style={{ fontSize: 12, fontWeight: 700 }}>{PROVIDER_LABEL[u.provider] || u.provider}</span></td>
+                                  <td style={{ color: '#6b7280' }}>{fmtDate(u.createdAt)}</td>
+                                  <td style={{ color: '#9ca3af', fontSize: 13 }}>{isExpanded ? '▲' : '▼'}</td>
+                                </tr>
+                                {isExpanded && (
+                                  <tr key={u._id + '_detail'}>
+                                    <td colSpan={7} style={{ background: '#fdf4ff', padding: '14px 20px' }}>
+                                      <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                                        <div>
+                                          <div style={{ fontSize: 12, color: '#9ca3af', fontWeight: 700, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Đơn hàng ({userOrders.length})</div>
+                                          {userOrders.length === 0
+                                            ? <span style={{ fontSize: 13, color: '#d1d5db' }}>Chưa có đơn hàng nào</span>
+                                            : <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                                                {userOrders.map(o => (
+                                                  <span key={o._id} style={{ fontSize: 12, fontWeight: 700, color: '#db2777', background: '#fce7f3', borderRadius: 6, padding: '3px 8px' }}>
+                                                    #{o.order_id}
+                                                  </span>
+                                                ))}
+                                              </div>
+                                          }
+                                        </div>
+                                        <div>
+                                          <div style={{ fontSize: 12, color: '#9ca3af', fontWeight: 700, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tổng chi tiêu</div>
+                                          <span style={{ fontSize: 16, fontWeight: 800, color: '#db2777' }}>{fmt(totalSpent)}</span>
+                                        </div>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                )}
+                              </>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                      <div style={{ padding: '10px 20px', fontSize: 12, color: '#9ca3af', borderTop: '1px solid #f3f4f6' }}>
+                        Tổng: {filtered.length} khách hàng
+                      </div>
+                    </div>
+                  );
+                })()
+            }
           </div>
 
         </div>
