@@ -214,7 +214,7 @@ export default function ProductDetail() {
             >
               {addedCart ? '✓ Đã thêm vào giỏ' : '🛒 Thêm vào giỏ hàng'}
             </button>
-            <button className="pd-btn-buy" onClick={() => navigate('/checkout')}>
+            <button className="pd-btn-buy" onClick={() => { addToCart(product, qty); navigate('/gio-hang'); }}>
               Mua ngay
             </button>
           </div>

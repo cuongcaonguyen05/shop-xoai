@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import logoImg from '../Resource/logo/logo.jpg';
 import './index.css';
 
 import imgChair        from '../Resource/menu_icon_chair.webp';
@@ -13,8 +14,9 @@ import imgNoodles      from '../Resource/menu_icon_noodles_and_vermicelli.webp';
 import imgMilk         from '../Resource/menu_icon_milk_and_vitamins.webp';
 import imgToys         from '../Resource/menu_icon_educational_toys.webp';
 
-const API_URL      = 'http://localhost:5000/api/products';
-const NEWS_API_URL = 'http://localhost:5000/api/news';
+const API_URL       = 'http://localhost:5000/api/products';
+const NEWS_API_URL  = 'http://localhost:5000/api/news';
+const ORDERS_API    = 'http://localhost:5000/api/orders';
 
 const CATEGORIES = [
   { value: 'chair',               label: 'Ghế ăn dặm',               img: imgChair },
@@ -84,6 +86,13 @@ export default function AdminPage() {
   const [confirmOpen, setConfirmOpen]   = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
+  // ── Orders state ──
+  const [ordersList, setOrdersList]     = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [orderSearch, setOrderSearch]   = useState('');
+  const [orderStatus, setOrderStatus]   = useState('all');
+  const [expandedOrder, setExpandedOrder] = useState(null);
+
   // ── News state ──
   const [newsList, setNewsList]         = useState([]);
   const [newsLoading, setNewsLoading]   = useState(false);
@@ -121,8 +130,20 @@ export default function AdminPage() {
     finally { setNewsLoading(false); }
   }, []);
 
+  // ── Fetch orders (admin: không cần token) ──
+  const fetchOrders = useCallback(async () => {
+    setOrdersLoading(true);
+    try {
+      const token = localStorage.getItem('shop_token');
+      const res = await fetch(`${ORDERS_API}/all`, { headers: { Authorization: `Bearer ${token}` } });
+      if (res.ok) setOrdersList(await res.json());
+    } catch (_) {}
+    finally { setOrdersLoading(false); }
+  }, []);
+
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
   useEffect(() => { fetchNews(); }, [fetchNews]);
+  useEffect(() => { if (activePage === 'orders') fetchOrders(); }, [activePage, fetchOrders]);
 
   // ── Product CRUD ──
   const openAdd = () => { setEditId(null); setForm(defaultForm); setFormErr(''); setModalOpen(true); };
@@ -245,7 +266,7 @@ export default function AdminPage() {
   const navItems = [
     { id: 'dashboard', label: 'Tổng quan', icon: '📊' },
     { id: 'products',  label: 'Sản phẩm',  icon: '📦' },
-    { id: 'orders',    label: 'Đơn hàng',  icon: '🛒', badge: 3 },
+    { id: 'orders',    label: 'Đơn hàng',  icon: '🛒' },
     { id: 'customers', label: 'Khách hàng',icon: '👥' },
     { id: 'news',      label: 'Tin tức',   icon: '📰' },
   ];
@@ -256,9 +277,9 @@ export default function AdminPage() {
       {/* ══════════ SIDEBAR ══════════ */}
       <aside className="adm-sidebar">
         <div className="adm-logo">
-          <span className="adm-logo-icon">👶</span>
+          <img src={logoImg} alt="logo" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover' }} />
           <div>
-            <div className="adm-logo-text">Bé<em>Yêu</em>Shop</div>
+            <div className="adm-logo-text">Shop mẹ <em>Thủy</em></div>
             <span className="adm-logo-tag">ADMIN PANEL</span>
           </div>
         </div>
@@ -669,13 +690,161 @@ export default function AdminPage() {
             )}
           </div>
 
-          {/* ══════════ ORDERS (placeholder) ══════════ */}
+          {/* ══════════ ORDERS ══════════ */}
           <div className={`adm-page ${activePage === 'orders' ? 'active' : ''}`}>
-            <div className="adm-card" style={{ textAlign: 'center', padding: '56px 20px' }}>
-              <div style={{ fontSize: 52, marginBottom: 14 }}>🛒</div>
-              <div style={{ fontFamily: "'Baloo 2', sans-serif", fontSize: 20, fontWeight: 800, marginBottom: 10 }}>Module Đơn hàng</div>
-              <p style={{ fontSize: 13, color: '#6b7280', lineHeight: 1.8, maxWidth: 440, margin: '0 auto' }}>Đang phát triển</p>
+            {/* Filters */}
+            <div style={{ marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div className="adm-search-wrap" style={{ maxWidth: '100%' }}>
+                <span>🔍</span>
+                <input
+                  placeholder="Tìm theo mã vận đơn..."
+                  value={orderSearch} onChange={e => setOrderSearch(e.target.value)}
+                />
+              </div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {[
+                  { value: 'all', label: 'Tất cả' },
+                  { value: 'Đang xử lý', label: '🕐 Đang xử lý' },
+                  { value: 'Đang vận chuyển', label: '🚚 Đang vận chuyển' },
+                  { value: 'Đã giao hàng',   label: '✅ Đã giao hàng' },
+                  { value: 'Đã hủy đơn',     label: '❌ Đã hủy đơn' },
+                ].map(s => (
+                  <button
+                    key={s.value}
+                    onClick={() => setOrderStatus(s.value)}
+                    style={{
+                      padding: '6px 16px', borderRadius: 50, border: '1.5px solid',
+                      fontFamily: "'Nunito', sans-serif", fontSize: 13, fontWeight: 700,
+                      cursor: 'pointer', transition: 'all 0.15s',
+                      background: orderStatus === s.value ? '#f472b6' : '#fafaf9',
+                      borderColor: orderStatus === s.value ? '#f472b6' : '#e5e7eb',
+                      color: orderStatus === s.value ? 'white' : '#4b5563',
+                    }}
+                  >{s.label}</button>
+                ))}
+              </div>
             </div>
+
+            {ordersLoading
+              ? <div className="adm-loading">Đang tải...</div>
+              : (() => {
+                  const PAYMENT_LABEL = { cod: 'COD', bank: 'Chuyển khoản', momo: 'MoMo' };
+                  const filtered = ordersList.filter(o => {
+                    const q = orderSearch.toLowerCase();
+                    const matchQ = !q || (o.order_id||'').toLowerCase().includes(q);
+                    const matchS = orderStatus === 'all' || o.status === orderStatus;
+                    return matchQ && matchS;
+                  });
+                  if (filtered.length === 0) return (
+                    <div className="adm-card" style={{ textAlign: 'center', padding: 40, color: '#9ca3af' }}>Không có đơn hàng nào.</div>
+                  );
+                  return (
+                    <div className="adm-card" style={{ padding: 0, overflow: 'hidden' }}>
+                      <table className="adm-table">
+                        <thead>
+                          <tr>
+                            <th>Mã đơn</th>
+                            <th>Khách hàng</th>
+                            <th>SĐT</th>
+                            <th>Thanh toán</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày đặt</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filtered.map(o => (
+                            <>
+                              <tr key={o._id} style={{ cursor: 'pointer' }} onClick={() => setExpandedOrder(expandedOrder === o._id ? null : o._id)}>
+                                <td><code style={{ fontSize: 14, fontWeight: 700, color: '#db2777' }}>#{o.order_id}</code></td>
+                                <td style={{ fontWeight: 600 }}>{o.name}</td>
+                                <td>{o.recipientPhone}</td>
+                                <td>{PAYMENT_LABEL[o.payment] || o.payment}</td>
+                                <td style={{ fontWeight: 700, color: '#db2777' }}>{fmt(o.total)}</td>
+                                <td onClick={e => e.stopPropagation()}>
+                                  {(() => {
+                                    const STATUS_STYLES = {
+                                      'Đang xử lý': { bg: '#fef3c7', color: '#d97706', border: '#fcd34d' },
+                                      'Đang vận chuyển': { bg: '#dbeafe', color: '#2563eb', border: '#93c5fd' },
+                                      'Đã giao hàng':    { bg: '#d1fae5', color: '#059669', border: '#6ee7b7' },
+                                      'Đã hủy đơn':      { bg: '#fee2e2', color: '#dc2626', border: '#fca5a5' },
+                                    };
+                                    const st = STATUS_STYLES[o.status] || { bg: '#f3f4f6', color: '#6b7280', border: '#e5e7eb' };
+                                    return (
+                                      <select
+                                        value={o.status}
+                                        onChange={async (e) => {
+                                          const newStatus = e.target.value;
+                                          const token = localStorage.getItem('shop_token');
+                                          const res = await fetch(`${ORDERS_API}/${o._id}/status`, {
+                                            method: 'PATCH',
+                                            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                                            body: JSON.stringify({ status: newStatus }),
+                                          });
+                                          if (res.ok) setOrdersList(prev => prev.map(x => x._id === o._id ? { ...x, status: newStatus } : x));
+                                        }}
+                                        style={{
+                                          background: st.bg, color: st.color,
+                                          border: `1.5px solid ${st.border}`,
+                                          borderRadius: 20, padding: '4px 10px',
+                                          fontFamily: "'Nunito', sans-serif", fontSize: 13, fontWeight: 700,
+                                          cursor: 'pointer', outline: 'none',
+                                        }}
+                                      >
+                                        {['Đang xử lý','Đang vận chuyển','Đã giao hàng','Đã hủy đơn'].map(s => (
+                                          <option key={s} value={s}>{s}</option>
+                                        ))}
+                                      </select>
+                                    );
+                                  })()}
+                                </td>
+                                <td>{fmtDate(o.createdAt)}</td>
+                                <td style={{ fontSize: 12, color: '#9ca3af' }}>{expandedOrder === o._id ? '▲' : '▼'}</td>
+                              </tr>
+                              {expandedOrder === o._id && (
+                                <tr key={o._id + '_detail'}>
+                                  <td colSpan={8} style={{ background: '#fdf2f8', padding: '12px 20px' }}>
+                                    <div style={{ marginBottom: 8, fontSize: 13, color: '#4b5563' }}>
+                                      <strong>Địa chỉ:</strong> {o.address}
+                                      {o.note && <> &nbsp;|&nbsp; <strong>Ghi chú:</strong> {o.note}</>}
+                                    </div>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                                      <thead>
+                                        <tr style={{ color: '#9ca3af', textAlign: 'left' }}>
+                                          <th style={{ padding: '4px 8px' }}>Sản phẩm</th>
+                                          <th style={{ padding: '4px 8px' }}>Đơn giá</th>
+                                          <th style={{ padding: '4px 8px' }}>SL</th>
+                                          <th style={{ padding: '4px 8px' }}>Thành tiền</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {o.items.map((item, i) => (
+                                          <tr key={i} style={{ borderTop: '1px solid #fce7f3' }}>
+                                            <td style={{ padding: '6px 8px', fontWeight: 600 }}>{item.name}</td>
+                                            <td style={{ padding: '6px 8px' }}>{fmt(item.price)}</td>
+                                            <td style={{ padding: '6px 8px' }}>x{item.qty}</td>
+                                            <td style={{ padding: '6px 8px', fontWeight: 700, color: '#db2777' }}>{fmt(item.price * item.qty)}</td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                    <div style={{ marginTop: 10, fontSize: 13, color: '#4b5563', display: 'flex', gap: 24 }}>
+                                      <span>Tạm tính: <strong>{fmt(o.subtotal)}</strong></span>
+                                      <span>Ship: <strong>{o.shipping === 0 ? 'Miễn phí' : fmt(o.shipping)}</strong></span>
+                                      <span style={{ color: '#db2777', fontWeight: 800 }}>Tổng: {fmt(o.total)}</span>
+                                    </div>
+                                  </td>
+                                </tr>
+                              )}
+                            </>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  );
+                })()
+            }
           </div>
 
           {/* ══════════ CUSTOMERS (placeholder) ══════════ */}

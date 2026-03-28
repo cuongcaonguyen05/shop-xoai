@@ -46,12 +46,14 @@ export default function CheckoutPage() {
       .catch(() => {});
   }, [user]);
   const [payment, setPayment]   = useState('cod');
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted, setSubmitted]   = useState(false);
+  const [savedTotal, setSavedTotal]           = useState(0);
+  const [order_id, setTrackingCode]       = useState('');
   const [error, setError]         = useState('');
 
   const set = (field) => (e) => setForm(f => ({ ...f, [field]: e.target.value }));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name.trim())    { setError('Vui lòng nhập họ tên.'); return; }
     if (!/^(0|\+84)\d{9,10}$/.test(form.phone.trim()))
@@ -59,20 +61,33 @@ export default function CheckoutPage() {
     if (!form.address.trim()) { setError('Vui lòng nhập địa chỉ giao hàng.'); return; }
     if (selectedItems.length === 0) { setError('Không có sản phẩm nào được chọn.'); return; }
     setError('');
-    const newOrder = {
-      id: Date.now(),
-      date: new Date().toISOString(),
-      name: form.name, phone: form.phone,
-      address: form.address, note: form.note,
-      payment,
-      items: selectedItems,
-      subtotal, shipping, total,
-      status: 'Đang xử lý',
-    };
+
+    const token = localStorage.getItem('shop_token');
     try {
-      const existing = JSON.parse(localStorage.getItem('shop_orders') || '[]');
-      localStorage.setItem('shop_orders', JSON.stringify([newOrder, ...existing]));
-    } catch {}
+      const res = await fetch('http://localhost:5000/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          name: form.name,
+          recipientPhone: form.phone,
+          address: form.address,
+          note: form.note,
+          payment,
+          items: selectedItems,
+          subtotal, shipping, total,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.message || 'Có lỗi khi đặt hàng.');
+        return;
+      }
+      setTrackingCode(data.order_id || '');
+    } catch {
+      setError('Không thể kết nối server.');
+      return;
+    }
+    setSavedTotal(total);
     selectedItems.forEach(i => removeItem(i.productId));
     setSubmitted(true);
   };
@@ -93,13 +108,14 @@ export default function CheckoutPage() {
       <div className="co-success">
         <div className="co-success-icon">🎉</div>
         <h2>Đặt hàng thành công!</h2>
-        <p>Cảm ơn bạn đã mua hàng. Chúng tôi sẽ liên hệ xác nhận đơn hàng sớm nhất.</p>
+        <p>Cảm ơn bạn đã mua hàng. Chúng tôi sẽ liên hệ để xác nhận đơn hàng của bạn sớm nhất!</p>
         <div className="co-success-info">
           <div><strong>Người nhận:</strong> {form.name}</div>
           <div><strong>Điện thoại:</strong> {form.phone}</div>
           <div><strong>Địa chỉ:</strong> {form.address}</div>
           <div><strong>Thanh toán:</strong> {PAYMENT_METHODS.find(p => p.id === payment)?.label}</div>
-          <div><strong>Tổng tiền:</strong> {fmt(total)}</div>
+          <div><strong>Mã vận đơn:</strong> #{order_id}</div>
+          <div><strong>Tổng tiền:</strong> {fmt(savedTotal)}</div>
         </div>
         <div className="co-success-actions">
           <button className="co-btn-primary" onClick={() => navigate('/')}>Tiếp tục mua sắm</button>
@@ -126,7 +142,7 @@ export default function CheckoutPage() {
                 <label>Họ và tên <span className="co-required">*</span></label>
                 <input
                   type="text"
-                  placeholder="Nguyễn Thị Thủy"
+                  placeholder="Nguyễn Văn A"
                   value={form.name}
                   onChange={set('name')}
                 />

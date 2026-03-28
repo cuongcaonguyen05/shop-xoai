@@ -92,7 +92,7 @@ export default function AddressTab() {
           <div className="acc-form-row">
             <div className="acc-field">
               <label>Tên người nhận</label>
-              <input type="text" placeholder="Nguyễn Thị Thủy" value={form.name} onChange={set('name')} />
+              <input type="text" placeholder="Nguyễn Văn A" value={form.name} onChange={set('name')} />
             </div>
             <div className="acc-field">
               <label>Số điện thoại người nhận</label>

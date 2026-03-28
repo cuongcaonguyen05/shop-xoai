@@ -23,7 +23,7 @@ export default function CartPage() {
       <div className="cart-empty">
         <div className="cart-empty-icon">🛒</div>
         <h2>Giỏ hàng trống</h2>
-        <p>Bạn chưa có sản phẩm nào trong giỏ hàng.</p>
+        <p>Bạn chưa có sản phẩm nào trong giỏ hàng</p>
         <button className="cart-empty-btn" onClick={() => navigate('/')}>Tiếp tục mua sắm</button>
       </div>
     );

@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const PAYMENT_LABEL = { cod: 'Thanh toán khi nhận hàng', bank: 'Chuyển khoản ngân hàng', momo: 'Ví MoMo' };
-const STATUS_COLOR  = { 'Đang xử lý': '#f59e0b', 'Đang giao': '#3b82f6', 'Đã giao': '#10b981', 'Đã huỷ': '#ef4444' };
+const STATUS_COLOR  = { 'Đang xử lý': '#f59e0b', 'Đang vận chuyển': '#3b82f6', 'Đã giao hàng': '#10b981', 'Đã hủy đơn': '#ef4444' };
 
 function fmt(n) { return Number(n).toLocaleString('vi-VN') + 'đ'; }
 function fmtDate(iso) {
@@ -10,11 +10,29 @@ function fmtDate(iso) {
 }
 
 export default function OrdersTab() {
-  const [orders] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('shop_orders') || '[]'); }
-    catch { return []; }
-  });
+  const [orders, setOrders]   = useState([]);
+  const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('shop_token');
+    fetch('http://localhost:5000/api/orders', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(r => r.json())
+      .then(data => setOrders(Array.isArray(data) ? data : []))
+      .catch(() => setOrders([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="acc-tab-content">
+        <div className="acc-tab-header"><h3>Đơn hàng của tôi</h3></div>
+        <div className="acc-empty">Đang tải...</div>
+      </div>
+    );
+  }
 
   if (orders.length === 0) {
     return (
@@ -30,14 +48,13 @@ export default function OrdersTab() {
       <div className="acc-tab-header"><h3>Đơn hàng của tôi ({orders.length})</h3></div>
       <div className="acc-order-list">
         {orders.map(order => {
-          const isOpen = expanded === order.id;
+          const isOpen = expanded === order._id;
           return (
-            <div key={order.id} className="acc-order-card">
-              {/* HEADER */}
-              <div className="acc-order-header" onClick={() => setExpanded(isOpen ? null : order.id)}>
+            <div key={order._id} className="acc-order-card">
+              <div className="acc-order-header" onClick={() => setExpanded(isOpen ? null : order._id)}>
                 <div className="acc-order-meta">
-                  <span className="acc-order-id">#{String(order.id).slice(-6)}</span>
-                  <span className="acc-order-date">{fmtDate(order.date)}</span>
+                  <span className="acc-order-id">#{order.order_id || String(order._id).slice(-6).toUpperCase()}</span>
+                  <span className="acc-order-date">{fmtDate(order.createdAt)}</span>
                 </div>
                 <div className="acc-order-right">
                   <span className="acc-order-status" style={{ color: STATUS_COLOR[order.status] || '#6b7280' }}>
@@ -48,12 +65,11 @@ export default function OrdersTab() {
                 </div>
               </div>
 
-              {/* CHI TIẾT */}
               {isOpen && (
                 <div className="acc-order-detail">
                   <div className="acc-order-section">
                     <span className="acc-order-label">Giao đến:</span>
-                    <span>{order.name} · {order.phone} · {order.address}</span>
+                    <span>{order.name} · {order.recipientPhone} · {order.address}</span>
                   </div>
                   {order.note && (
                     <div className="acc-order-section">
