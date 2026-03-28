@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation, Outlet } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import './Layout.css';
 import logoImg      from '../Resource/logo/logo.jpg';
 import iconShopee   from '../Resource/contact/shopee.png';
@@ -17,8 +18,9 @@ const filterCategories = [
 
 export default function Layout() {
   const [openNav, setOpenNav] = useState(null);
-  const navigate  = useNavigate();
-  const location  = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user, setLoginOpen, logout } = useAuth();
 
   const handleHomeClick = () => {
     if (location.pathname === '/') window.location.href = '/';
@@ -48,8 +50,32 @@ export default function Layout() {
           </div>
 
           <div className="header-actions">
-            <button className="action-btn">👤 Tài khoản</button>
-            <button className="action-btn">📦 Đơn hàng</button>
+            {user ? (
+              <div className="user-menu-wrap">
+                <div className="user-info" onClick={() => setOpenNav(openNav === 'user' ? null : 'user')}>
+                  {user.avatar
+                    ? <img src={user.avatar} alt={user.name} className="user-avatar" />
+                    : <div className="user-avatar user-avatar-fallback">{user.name[0].toUpperCase()}</div>
+                  }
+                  <span className="user-name">{user.name.split(' ').slice(-1)[0]}</span>
+                  <span style={{ fontSize: 10, color: '#9ca3af' }}>▾</span>
+                </div>
+                {openNav === 'user' && (
+                  <div className="user-dropdown" onMouseLeave={() => setOpenNav(null)}>
+                    <div className="user-dropdown-header">
+                      <div className="user-dropdown-name">{user.name}</div>
+                      <div className="user-dropdown-email">{user.email}</div>
+                    </div>
+                    <div className="user-dropdown-item" onClick={() => setOpenNav(null)}>📦 Đơn hàng của tôi</div>
+                    <div className="user-dropdown-item" onClick={() => { logout(); setOpenNav(null); }}>🚪 Đăng xuất</div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button className="action-btn login-btn" onClick={() => setLoginOpen(true)}>
+                👤 Đăng nhập
+              </button>
+            )}
             <button className="cart-btn">🛒 Giỏ hàng</button>
           </div>
         </div>
