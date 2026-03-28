@@ -42,6 +42,7 @@ export default function HomePage() {
   // Đọc thẳng từ URL — luôn đồng bộ, không lag
   const activeCat  = searchParams.get('category') || null;
   const newsParam  = searchParams.get('news') || null;
+  const searchQ    = searchParams.get('search') || null;
 
   // Đóng bài đang đọc khi đổi tab
   useEffect(() => { setSelectedArticle(null); }, [newsParam]);
@@ -52,7 +53,8 @@ export default function HomePage() {
     const fetchProducts = async () => {
       setLoading(true); setError(null);
       try {
-        const url = activeCat ? `${API_URL}?category=${activeCat}` : API_URL;
+        let url = activeCat ? `${API_URL}?category=${activeCat}` : API_URL;
+        if (searchQ) url = `${API_URL}?search=${encodeURIComponent(searchQ)}`;
         const res = await fetch(url);
         if (!res.ok) throw new Error('Lỗi kết nối API');
         setProducts(await res.json());
@@ -60,7 +62,7 @@ export default function HomePage() {
       finally { setLoading(false); }
     };
     fetchProducts();
-  }, [activeCat, newsParam]);
+  }, [activeCat, newsParam, searchQ]);
 
   // ── Fetch news khi có newsParam ──
   useEffect(() => {
@@ -80,7 +82,7 @@ export default function HomePage() {
   const addToCart = (id) => setCart(c => [...c, id]);
 
   const activeCatLabel = filterCategories.find(c => c.value === activeCat)?.label;
-  const sectionTitle   = activeCat ? activeCatLabel : "Sản phẩm nổi bật";
+  const sectionTitle   = searchQ ? `Kết quả tìm kiếm: "${searchQ}"` : activeCat ? activeCatLabel : "Sản phẩm nổi bật";
 
   return (
     <>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import './LoginModal.css';
 
@@ -9,6 +10,7 @@ const AUTH_URL = 'http://localhost:5000/api/auth';
 
 export default function LoginModal() {
   const { loginOpen, setLoginOpen, loginPhone, registerPhone, loginFacebook, saveUser } = useAuth(); // eslint-disable-line
+  const navigate = useNavigate();
 
   const [tab, setTab]           = useState('login');
   const [name, setName]         = useState('');
@@ -19,7 +21,10 @@ export default function LoginModal() {
   const [error, setError]       = useState('');
 
   const reset     = () => { setName(''); setPhone(''); setPass(''); setError(''); setLoading(false); };
-  const close     = () => { setLoginOpen(false); reset(); };
+  const closeAndRedirect = (user) => {
+    setLoginOpen(false); reset();
+    if (user?.role === 'admin') navigate('/admin');
+  };
   const switchTab = (t) => { setTab(t); setError(''); };
 
   const handleSubmit = async (e) => {
@@ -28,9 +33,10 @@ export default function LoginModal() {
     if (phone.length < 10) { setError('Số điện thoại phải có ít nhất 10 chữ số.'); return; }
     setLoading(true);
     try {
-      if (tab === 'login') await loginPhone(phone, password);
-      else                 await registerPhone(name, phone, password);
-      close();
+      const user = tab === 'login'
+        ? await loginPhone(phone, password)
+        : await registerPhone(name, phone, password);
+      closeAndRedirect(user);
     } catch (err) { setError(err.message); }
     finally { setLoading(false); }
   };
@@ -47,7 +53,7 @@ export default function LoginModal() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.message);
         saveUser(data.user, data.token);
-        close();
+        closeAndRedirect(data.user);
       } catch (err) { setError(err.message); }
       finally { setLoading(false); }
     },
@@ -58,8 +64,8 @@ export default function LoginModal() {
     if (!response.accessToken) return;
     setError(''); setLoading(true);
     try {
-      await loginFacebook(response.accessToken, response.userID);
-      close();
+      const fbUser = await loginFacebook(response.accessToken, response.userID);
+      closeAndRedirect(fbUser);
     } catch (err) { setError(err.message); }
     finally { setLoading(false); }
   };
@@ -67,7 +73,7 @@ export default function LoginModal() {
   if (!loginOpen) return null;
 
   return (
-    <div className="lm-overlay" onClick={e => e.target === e.currentTarget && close()}>
+    <div className="lm-overlay" onClick={e => e.target === e.currentTarget && closeAndRedirect(null)}>
       <div className="lm-box">
 
         {/* Header */}
@@ -76,7 +82,7 @@ export default function LoginModal() {
             <span>👶</span>
             <span className="lm-logo-text">Shop mẹ <em>Thủy</em></span>
           </div>
-          <button className="lm-close" onClick={close}>✕</button>
+          <button className="lm-close" onClick={() => closeAndRedirect(null)}>✕</button>
         </div>
 
         {/* Tabs */}

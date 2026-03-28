@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import './Layout.css';
@@ -16,11 +16,49 @@ const filterCategories = [
   { label: "Chăm sóc mẹ",     value: "postpartum",    icon: "🤱" },
 ];
 
+const API = 'http://localhost:5000/api';
+
 export default function Layout() {
   const [openNav, setOpenNav] = useState(null);
+  const [searchQ, setSearchQ]           = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchOpen, setSearchOpen]     = useState(false);
+  const searchRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { user, setLoginOpen, logout } = useAuth();
+
+  useEffect(() => {
+    if (!searchQ.trim()) { setSearchResults([]); setSearchOpen(false); return; }
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`${API}/products?search=${encodeURIComponent(searchQ.trim())}`);
+        const data = await res.json();
+        setSearchResults(data.slice(0, 8));
+        setSearchOpen(data.length >= 0);
+      } catch { setSearchResults([]); }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQ]);
+
+  useEffect(() => {
+    const handler = (e) => { if (searchRef.current && !searchRef.current.contains(e.target)) setSearchOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const handleSearchSelect = (product) => {
+    setSearchOpen(false);
+    setSearchQ('');
+    navigate(`/?search=${encodeURIComponent(product.name)}&category=${product.category || ''}`);
+  };
+
+  const handleSearchSubmit = (e) => {
+    if (e.key === 'Enter' && searchQ.trim()) {
+      setSearchOpen(false);
+      navigate(`/?search=${encodeURIComponent(searchQ.trim())}`);
+    }
+  };
 
   const handleHomeClick = () => {
     if (location.pathname === '/') window.location.href = '/';
@@ -44,9 +82,30 @@ export default function Layout() {
             <span className="logo-text">Shop mẹ <em>Thủy</em></span>
           </div>
 
-          <div className="search-box">
+          <div className="search-box" ref={searchRef}>
             <span>🔍</span>
-            <input placeholder="Tìm sản phẩm cho bé..." />
+            <input
+              placeholder="Tìm sản phẩm cho bé..."
+              value={searchQ}
+              onChange={e => setSearchQ(e.target.value)}
+              onKeyDown={handleSearchSubmit}
+              onFocus={() => searchResults.length > 0 && setSearchOpen(true)}
+            />
+            {searchOpen && (
+              <div className="search-dropdown">
+                {searchResults.length > 0 ? searchResults.map(p => (
+                  <div key={p._id} className="search-dropdown-item" onMouseDown={() => handleSearchSelect(p)}>
+                    {p.image && <img src={p.image} alt={p.name} className="search-dropdown-img" />}
+                    <div className="search-dropdown-info">
+                      <span className="search-dropdown-name">{p.name}</span>
+                      <span className="search-dropdown-price">{Number(p.price).toLocaleString('vi-VN')}₫</span>
+                    </div>
+                  </div>
+                )) : (
+                  <div className="search-dropdown-empty">Không tìm thấy sản phẩm nào</div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="header-actions">
@@ -66,7 +125,10 @@ export default function Layout() {
                       <div className="user-dropdown-name">{user.name}</div>
                       <div className="user-dropdown-email">{user.email}</div>
                     </div>
-                    <div className="user-dropdown-item" onClick={() => setOpenNav(null)}>📦 Đơn hàng của tôi</div>
+                    {user.role === 'admin'
+                      ? <div className="user-dropdown-item" onClick={() => { navigate('/admin'); setOpenNav(null); }}>🏪 Quản lí cửa hàng</div>
+                      : <div className="user-dropdown-item" onClick={() => setOpenNav(null)}>📦 Đơn hàng của tôi</div>
+                    }
                     <div className="user-dropdown-item" onClick={() => { logout(); setOpenNav(null); }}>🚪 Đăng xuất</div>
                   </div>
                 )}
