@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../contexts/CartContext';
 import './Layout.css';
 import logoImg      from '../Resource/logo/logo.jpg';
 import iconShopee   from '../Resource/contact/shopee.png';
@@ -27,6 +28,7 @@ export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, setLoginOpen, logout } = useAuth();
+  const { totalQty } = useCart();
 
   useEffect(() => {
     if (!searchQ.trim()) { setSearchResults([]); setSearchOpen(false); return; }
@@ -71,7 +73,7 @@ export default function Layout() {
       {/* TOP BANNER */}
       <div className="top-banner">
         🎉 Miễn phí ship toàn quốc đơn từ <strong>300K</strong> &nbsp;|&nbsp; 🌿
-        Cam kết hàng chính hãng 100% &nbsp;|&nbsp; 📞 Hotline: <strong>1800 6868</strong>
+        Cam kết hàng chính hãng 100% &nbsp;|&nbsp; 📞 Hotline: <strong>0352332840</strong>
       </div>
 
       {/* HEADER */}
@@ -138,7 +140,10 @@ export default function Layout() {
                 👤 Đăng nhập
               </button>
             )}
-            <button className="cart-btn">🛒 Giỏ hàng</button>
+            <button className="cart-btn" onClick={() => navigate('/gio-hang')}>
+              🛒 Giỏ hàng
+              {totalQty > 0 && <span className="cart-btn-badge">{totalQty}</span>}
+            </button>
           </div>
         </div>
 

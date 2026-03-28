@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useCart } from '../contexts/CartContext';
 import './ProductDetail.css';
 import img_test from '../Resource/ProductCard/coquetdau.webp';
 
@@ -27,6 +28,7 @@ function fmt(n) {
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addToCart } = useCart();
 
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
@@ -108,11 +110,11 @@ export default function ProductDetail() {
     );
   }
 
-  const discount = product.old_price
-    ? Math.round((1 - product.price / product.old_price) * 100)
-    : null;
+  const hasDiscount = product.old_price && product.old_price > product.price;
+  const discount = hasDiscount ? Math.round((1 - product.price / product.old_price) * 100) : null;
 
   const handleAddCart = () => {
+    addToCart(product, qty);
     setAddedCart(true);
     setTimeout(() => setAddedCart(false), 1500);
   };
@@ -154,7 +156,7 @@ export default function ProductDetail() {
               onClick={() => setLightbox(true)}
               style={{ cursor: 'zoom-in' }}
             />
-            {discount && <span className="pd-discount-badge">-{discount}%</span>}
+            {hasDiscount && <span className="pd-discount-badge">-{discount}%</span>}
             <button
               className="pd-arrow pd-arrow--prev"
               onClick={() => setMainImg(i => (i - 1 + images.length) % images.length)}
@@ -187,8 +189,8 @@ export default function ProductDetail() {
           {/* GIÁ */}
           <div className="pd-price-block">
             <span className="pd-price">{fmt(product.price)}</span>
-            {product.old_price && <s className="pd-old-price">{fmt(product.old_price)}</s>}
-            {discount && <span className="pd-discount-tag">-{discount}%</span>}
+            {hasDiscount && <s className="pd-old-price">{fmt(product.old_price)}</s>}
+            {hasDiscount && <span className="pd-discount-tag">-{discount}%</span>}
           </div>
 
           {/* THÔNG TIN NHANH */}

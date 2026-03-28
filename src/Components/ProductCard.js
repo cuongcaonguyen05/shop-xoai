@@ -1,5 +1,6 @@
 import './ProductCard.css';
 import { useNavigate } from 'react-router-dom';
+import { useCart } from '../contexts/CartContext';
 
 // =====================================================
 // COMPONENT: ProductCard
@@ -11,12 +12,12 @@ import { useNavigate } from 'react-router-dom';
 //   onAdd    — hàm gọi khi bấm nút thêm giỏ hàng
 //   productId — ID của sản phẩm
 // =====================================================
-export default function ProductCard({ image, name, price, oldPrice, onAdd, productId  }) {
+export default function ProductCard({ image, name, price, oldPrice, productId }) {
   const navigate = useNavigate();
+  const { addToCart } = useCart();
   // Tính % giảm giá nếu có oldPrice
-  const discount = oldPrice
-    ? Math.round((1 - price / oldPrice) * 100)
-    : null;
+  const hasDiscount = oldPrice && oldPrice > price;
+  const discount = hasDiscount ? Math.round((1 - price / oldPrice) * 100) : null;
 
   // Format số tiền → "10.000đ"
   const fmt = (n) => n.toLocaleString('vi-VN') + 'đ';
@@ -35,17 +36,23 @@ export default function ProductCard({ image, name, price, oldPrice, onAdd, produ
 
         {/* GIÁ */}
         <div className="pcard__price-row">
-          <span className="pcard__price">{fmt(price)}</span>
-          <button className="pcard__btn" onClick={e => { e.stopPropagation(); onAdd(); }}>+</button>
-        </div>
-
-        {/* GIÁ GỐC + % GIẢM — chỉ hiện khi có oldPrice */}
-        {oldPrice && (
-          <div className="pcard__old-row">
-            <s className="pcard__old-price">{fmt(oldPrice)}</s>
-            <span className="pcard__discount">-{discount}%</span>
+          <div>
+            <span className="pcard__price">{fmt(price)}</span>
+            {hasDiscount && (
+              <div className="pcard__old-row">
+                <s className="pcard__old-price">{fmt(oldPrice)}</s>
+                <span className="pcard__discount">-{discount}%</span>
+              </div>
+            )}
           </div>
-        )}
+          <button
+            className="pcard__btn"
+            onClick={e => {
+              e.stopPropagation();
+              addToCart({ _id: productId, name, price, old_price: oldPrice || null, image });
+            }}
+          >+</button>
+        </div>
       </div>
 
     </div>

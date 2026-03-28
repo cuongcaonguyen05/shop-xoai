@@ -203,6 +203,19 @@
   transition: all 0.2s;
 }
 .cart-btn:hover { background: var(--pink-d); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(244,114,182,0.35); }
+.cart-btn-badge {
+  position: absolute;
+  top: -6px; right: -6px;
+  background: #fb923c;
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .cart-count {
   background: white;
   color: var(--pink);
