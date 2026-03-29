@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import './ProductDetail.css';
-import img_test from '../Resource/ProductCard/coquetdau.webp';
+
+const SERVER_URL = 'http://localhost:5000';
 
 const API_URL = 'http://localhost:5000/api/products';
 
@@ -31,6 +32,7 @@ export default function ProductDetail() {
   const { addToCart } = useCart();
 
   const [product, setProduct] = useState(null);
+  const [productImages, setProductImages] = useState([]);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [samePriceProducts, setSamePriceProducts] = useState([]);
   const [viewedProducts, setViewedProducts] = useState([]);
@@ -49,6 +51,16 @@ export default function ProductDetail() {
         if (!res.ok) throw new Error('Không tìm thấy sản phẩm');
         const data = await res.json();
         setProduct(data);
+
+        // Fetch ảnh từ description
+        const descRes = await fetch(`${API_URL}/${id}/description`);
+        if (descRes.ok) {
+          const desc = await descRes.json();
+          const imgs = (desc.images && desc.images.length > 0)
+            ? desc.images
+            : (desc.img ? [desc.img] : []);
+          setProductImages(imgs.map(u => u.startsWith('http') ? u : `${SERVER_URL}${u}`));
+        }
 
         // Fetch sản phẩm cùng category
         const relRes = await fetch(`${API_URL}?category=${data.category}`);
@@ -94,8 +106,7 @@ export default function ProductDetail() {
     fetchProduct();
   }, [id]);
 
-  // Ảnh mẫu — sau thay bằng ảnh thật từ API
-  const images = [img_test, img_test, img_test, img_test];
+  const images = productImages.length > 0 ? productImages : [];
 
   if (loading) {
     return <div className="pd-notfound">⏳ Đang tải sản phẩm...</div>;
@@ -136,36 +147,31 @@ export default function ProductDetail() {
 
         {/* CỘT TRÁI — ẢNH */}
         <div className="pd-gallery">
-          {/* ẢNH NHỎ BÊN TRÁI */}
-          <div className="pd-thumbs">
-            {images.map((img, i) => (
-              <div
-                key={i}
-                className={`pd-thumb ${mainImg === i ? 'pd-thumb--active' : ''}`}
-                onClick={() => setMainImg(i)}
-              >
-                <img src={img} alt={`${product.name} ${i+1}`} />
-              </div>
-            ))}
-          </div>
           {/* ẢNH CHÍNH */}
           <div className="pd-main-img">
-            <img
-              src={images[mainImg]}
-              alt={product.name}
-              onClick={() => setLightbox(true)}
-              style={{ cursor: 'zoom-in' }}
-            />
+            {images.length > 0 && (
+              <img src={images[mainImg]} alt={product.name} onClick={() => setLightbox(true)} style={{ cursor: 'zoom-in' }} />
+            )}
             {hasDiscount && <span className="pd-discount-badge">-{discount}%</span>}
-            <button
-              className="pd-arrow pd-arrow--prev"
-              onClick={() => setMainImg(i => (i - 1 + images.length) % images.length)}
-            >‹</button>
-            <button
-              className="pd-arrow pd-arrow--next"
-              onClick={() => setMainImg(i => (i + 1) % images.length)}
-            >›</button>
+            {images.length > 1 && <>
+              <button className="pd-arrow pd-arrow--prev" onClick={() => setMainImg(i => (i - 1 + images.length) % images.length)}>‹</button>
+              <button className="pd-arrow pd-arrow--next" onClick={() => setMainImg(i => (i + 1) % images.length)}>›</button>
+            </>}
           </div>
+          {/* ẢNH NHỎ PHÍA DƯỚI */}
+          {images.length > 1 && (
+            <div className="pd-thumbs">
+              {images.map((img, i) => (
+                <div
+                  key={i}
+                  className={`pd-thumb ${mainImg === i ? 'pd-thumb--active' : ''}`}
+                  onClick={() => setMainImg(i)}
+                >
+                  <img src={img} alt={`${product.name} ${i+1}`} />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* CỘT PHẢI — THÔNG TIN */}
@@ -263,7 +269,7 @@ export default function ProductDetail() {
                 className="pd-related-card"
                 onClick={() => navigate(`/san-pham/${p._id}`)}
               >
-                <img src={img_test} alt={p.name} />
+                <img src={p.image || ''} alt={p.name} />
                 <p className="pd-related-name">{p.name}</p>
                 <div className="pd-related-bottom">
                   <span className="pd-related-price">{fmt(p.price)}</span>
@@ -286,7 +292,7 @@ export default function ProductDetail() {
                 className="pd-related-card"
                 onClick={() => navigate(`/san-pham/${p._id}`)}
               >
-                <img src={p.image || img_test} alt={p.name} />
+                <img src={p.image || p.image || ''} alt={p.name} />
                 <p className="pd-related-name">{p.name}</p>
                 <div className="pd-related-bottom">
                   <span className="pd-related-price">{fmt(p.price)}</span>
@@ -309,7 +315,7 @@ export default function ProductDetail() {
                 className="pd-related-card"
                 onClick={() => navigate(`/san-pham/${p._id}`)}
               >
-                <img src={p.image || img_test} alt={p.name} />
+                <img src={p.image || p.image || ''} alt={p.name} />
                 <p className="pd-related-name">{p.name}</p>
                 <div className="pd-related-bottom">
                   <span className="pd-related-price">{fmt(p.price)}</span>

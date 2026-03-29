@@ -4,6 +4,7 @@ const productDescriptionSchema = new mongoose.Schema({
   product_id: { type: String, required: true, unique: true },
   desc:       { type: String, default: '' },
   img:        { type: String, default: '' },
+  images:     { type: [String], default: [] },
 }, {
   timestamps: true,
   collection: 'productdescriptions'

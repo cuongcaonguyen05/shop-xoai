@@ -13,8 +13,23 @@ exports.getProducts = async (req, res) => {
     const filter = {};
     if (category) filter.category = category;
     if (search) filter.name = { $regex: search, $options: 'i' };
-    const products = await Product.find(filter);
-    res.json(products);
+    const products = await Product.find(filter).lean();
+
+    // Lấy ảnh đầu tiên từ productdescriptions cho mỗi sản phẩm
+    const productIds = products.map(p => p.product_id);
+    const descs = await ProductDescription.find({ product_id: { $in: productIds } }).select('product_id img images').lean();
+    const descMap = Object.fromEntries(descs.map(d => [d.product_id, d]));
+
+    const result = products.map(p => {
+      const desc = descMap[p.product_id];
+      const image = p.image
+        || (desc && desc.images && desc.images[0])
+        || (desc && desc.img)
+        || '';
+      return { ...p, image };
+    });
+
+    res.json(result);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -44,15 +59,17 @@ exports.getProductById = async (req, res) => {
 
 exports.createProduct = async (req, res) => {
   try {
-    const { description, image, ...rest } = req.body;
+    const { description, image, images, ...rest } = req.body;
     const product_id = genProductId(rest.name || '');
-    const product = new Product({ ...rest, product_id });
+    const imgs = Array.isArray(images) && images.length > 0 ? images : (image ? [image] : []);
+    const product = new Product({ ...rest, product_id, image: imgs[0] || '' });
     await product.save();
 
     await ProductDescription.create({
       product_id,
-      desc: description || '',
-      img:  image       || '',
+      desc:   description || '',
+      img:    imgs[0]     || '',
+      images: imgs,
     });
 
     res.status(201).json(product);
@@ -63,18 +80,22 @@ exports.createProduct = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   try {
-    const { product_id, description, image, ...updateData } = req.body;
+    const { product_id, description, image, images, ...updateData } = req.body;
+    const imgs = Array.isArray(images) && images.length > 0 ? images : (image ? [image] : undefined);
+    if (imgs) updateData.image = imgs[0];
+
     const product = await Product.findByIdAndUpdate(
       req.params.id, updateData, { new: true }
     );
     if (!product) return res.status(404).json({ message: 'Không tìm thấy' });
 
-    // Cập nhật productdescriptions nếu có thay đổi
-    if (description !== undefined || image !== undefined) {
+    if (description !== undefined || imgs !== undefined) {
       await ProductDescription.findOneAndUpdate(
         { product_id: product.product_id },
-        { ...(description !== undefined && { desc: description }),
-          ...(image       !== undefined && { img:  image       }) },
+        {
+          ...(description !== undefined && { desc: description }),
+          ...(imgs !== undefined && { img: imgs[0], images: imgs }),
+        },
         { upsert: true }
       );
     }

@@ -3,7 +3,8 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import "./index.css";
 import ProductCategory from "../Components/ProductCategory";
 import ProductCard from "../Components/ProductCard";
-import img_test_product_card from "../Resource/ProductCard/coquetdau.webp";
+const SERVER_URL = 'http://localhost:5000';
+const resolveImg = (img) => img ? (img.startsWith('http') ? img : `${SERVER_URL}${img}`) : null;
 
 const filterCategories = [
   { label: "Dụng cụ ăn dặm", value: "chair",       icon: "🍼" },
@@ -225,7 +226,7 @@ export default function HomePage() {
                     <ProductCard
                       key={p._id}
                       productId={p._id}
-                      image={p.image || img_test_product_card}
+                      image={resolveImg(p.image)}
                       name={p.name}
                       price={p.price}
                       oldPrice={p.old_price}

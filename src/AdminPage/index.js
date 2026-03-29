@@ -47,6 +47,9 @@ const fmt   = (n) => Number(n).toLocaleString('vi-VN') + ' ₫';
 const stars = (r) => '★'.repeat(Math.round(r || 0)) + '☆'.repeat(5 - Math.round(r || 0));
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
 
+const UPLOAD_URL = 'http://localhost:5000/api/upload';
+const SERVER_URL = 'http://localhost:5000';
+
 const defaultForm = {
   name: '', description: '', price: '', old_price: '',
   category: 'milk', image: '', tag: '', rating: 0,
@@ -72,7 +75,7 @@ function useToast() {
 const showToast = (msg, type = 'ok') => _fireToast?.(msg, type);
 
 export default function AdminPage() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [activePage, setActivePage] = useState('dashboard');
 
@@ -90,6 +93,8 @@ export default function AdminPage() {
   const [saving, setSaving]       = useState(false);
   const [confirmOpen, setConfirmOpen]   = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [imageFiles, setImageFiles]     = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
 
   // ── Orders state ──
   const [ordersList, setOrdersList]     = useState([]);
@@ -117,6 +122,7 @@ export default function AdminPage() {
   const [newsConfirmOpen, setNewsConfirmOpen]   = useState(false);
   const [newsDeleteTarget, setNewsDeleteTarget] = useState(null);
 
+  const [profileOpen, setProfileOpen] = useState(false);
   const toast = useToast();
 
   // ── Fetch products ──
@@ -169,7 +175,11 @@ export default function AdminPage() {
   useEffect(() => { if (activePage === 'customers') { fetchCustomers(); fetchOrders(); } }, [activePage, fetchCustomers, fetchOrders]);
 
   // ── Product CRUD ──
-  const openAdd = () => { setEditId(null); setForm(defaultForm); setFormErr(''); setModalOpen(true); };
+  const openAdd = () => {
+    setEditId(null); setForm(defaultForm); setFormErr('');
+    setImageFiles([]); setImagePreviews([]);
+    setModalOpen(true);
+  };
   const openEdit = async (p) => {
     setEditId(p._id);
     setForm({
@@ -178,14 +188,35 @@ export default function AdminPage() {
       image: '', tag: p.tag || '', rating: p.rating || 0,
       brand: p.brand || '', like: p.like || 0, product_code: p.product_code || '',
     });
+    setImageFiles([]); setImagePreviews([]);
     setFormErr(''); setModalOpen(true);
     try {
       const res = await fetch(`${API_URL}/${p._id}/description`);
       if (res.ok) {
         const d = await res.json();
         setForm(f => ({ ...f, description: d.desc || '', image: d.img || '' }));
+        const prevs = (d.images && d.images.length > 0 ? d.images : (d.img ? [d.img] : []))
+          .map(u => u.startsWith('http') ? u : `${SERVER_URL}${u}`);
+        setImagePreviews(prevs);
       }
     } catch (_) {}
+  };
+
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+    setImageFiles(prev => [...prev, ...files]);
+    setImagePreviews(prev => [...prev, ...files.map(f => URL.createObjectURL(f))]);
+  };
+
+  const removeImageAt = (idx) => {
+    const preview = imagePreviews[idx];
+    if (preview.startsWith('blob:')) {
+      // Tìm index trong imageFiles tương ứng
+      const blobIdx = imagePreviews.slice(0, idx).filter(p => p.startsWith('blob:')).length;
+      setImageFiles(prev => prev.filter((_, i) => i !== blobIdx));
+    }
+    setImagePreviews(prev => prev.filter((_, i) => i !== idx));
   };
 
   const handleSave = async () => {
@@ -193,11 +224,29 @@ export default function AdminPage() {
     if (!form.price || +form.price <= 0) { setFormErr('Giá bán phải lớn hơn 0.'); return; }
     setSaving(true); setFormErr('');
     try {
+      // Giữ lại các ảnh cũ đã upload (không phải blob:)
+      const existingUrls = imagePreviews
+        .filter(p => !p.startsWith('blob:'))
+        .map(p => p.startsWith(SERVER_URL) ? p.slice(SERVER_URL.length) : p);
+
+      // Upload các ảnh mới
+      const uploadedUrls = [];
+      for (const file of imageFiles) {
+        const fd = new FormData();
+        fd.append('image', file);
+        const upRes = await fetch(UPLOAD_URL, { method: 'POST', body: fd });
+        if (!upRes.ok) throw new Error('Upload ảnh thất bại');
+        uploadedUrls.push((await upRes.json()).url);
+      }
+
+      const finalImages = [...existingUrls, ...uploadedUrls];
       const body = {
         name: form.name.trim(), description: form.description.trim(),
         price: Number(form.price), old_price: form.old_price ? Number(form.old_price) : null,
-        category: form.category, image: form.image.trim(), tag: form.tag.trim(),
-        rating: Number(form.rating), brand: form.brand.trim(),
+        category: form.category,
+        image: finalImages[0] || '',
+        images: finalImages,
+        tag: form.tag.trim(), rating: Number(form.rating), brand: form.brand.trim(),
         like: Number(form.like) || 0, product_code: form.product_code.trim(),
       };
       const url = editId ? `${API_URL}/${editId}` : API_URL;
@@ -332,14 +381,28 @@ export default function AdminPage() {
           </div>
         </nav>
 
-        <div className="adm-sidebar-footer">
-          <div className="adm-admin-card">
-            <div className="adm-avatar">AD</div>
-            <div>
-              <div className="adm-admin-name">mr. Cường</div>
-              <div className="adm-admin-role">0365414845</div>
+        <div className="adm-sidebar-footer" style={{ position: 'relative' }}>
+          <div className="adm-admin-card" style={{ cursor: 'pointer' }} onClick={() => setProfileOpen(p => !p)}>
+            {user.avatar
+              ? <img src={user.avatar} alt="" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+              : <div className="adm-avatar">{(user.name || 'AD')[0].toUpperCase()}</div>
+            }
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="adm-admin-name" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</div>
+              <div className="adm-admin-role">{user.phone || user.email || 'Admin'}</div>
             </div>
           </div>
+          {profileOpen && (
+            <div style={{ position: 'absolute', bottom: '100%', left: 12, right: 12, marginBottom: 8, background: 'white', borderRadius: 12, boxShadow: '0 4px 24px rgba(0,0,0,0.12)', padding: '16px', fontSize: 13, lineHeight: 1.8, zIndex: 10 }}>
+              <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 6, color: '#1f2937' }}>{user.name}</div>
+              {user.phone && <div style={{ color: '#6b7280' }}>📱 {user.phone}</div>}
+              {user.email && <div style={{ color: '#6b7280' }}>✉️ {user.email}</div>}
+              <button
+                onClick={() => { logout(); navigate('/'); }}
+                style={{ marginTop: 10, width: '100%', padding: '7px 0', borderRadius: 8, border: 'none', background: '#fce7f3', color: '#db2777', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: "'Nunito', sans-serif" }}
+              >Đăng xuất</button>
+            </div>
+          )}
         </div>
       </aside>
 
@@ -468,17 +531,6 @@ export default function AdminPage() {
               </div>
             </div>
 
-            <div className="adm-card" style={{ background: '#f0fdf4', borderColor: '#bbf7d0' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                <span style={{ fontSize: 32 }}>🚀</span>
-                <div>
-                  <div style={{ fontFamily: "'Baloo 2', sans-serif", fontSize: 15, fontWeight: 800, marginBottom: 4 }}>Modules đơn hàng &amp; khách hàng đang phát triển</div>
-                  <p style={{ fontSize: 13, color: '#6b7280', lineHeight: 1.7 }}>
-                    Backend hiện có <code style={{ background: '#dcfce7', padding: '1px 6px', borderRadius: 4, color: '#15803d' }}>/api/products</code> và <code style={{ background: '#dcfce7', padding: '1px 6px', borderRadius: 4, color: '#15803d' }}>/api/news</code>.
-                  </p>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* ══════════ PRODUCTS ══════════ */}
@@ -1050,8 +1102,24 @@ export default function AdminPage() {
               <input className="adm-form-input" type="number" min="0" placeholder="0" value={form.like} onChange={e => setForm(f => ({ ...f, like: e.target.value }))} />
             </div>
             <div className="adm-form-group" style={{ flex: 2 }}>
-              <label className="adm-form-label">URL ảnh</label>
-              <input className="adm-form-input" placeholder="https://... (để trống → dùng icon danh mục)" value={form.image} onChange={e => setForm(f => ({ ...f, image: e.target.value }))} />
+              <label className="adm-form-label">Ảnh sản phẩm</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {imagePreviews.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {imagePreviews.map((src, i) => (
+                      <div key={i} style={{ position: 'relative' }}>
+                        <img src={src} alt="" style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 8, border: '1.5px solid #fce7f3' }} />
+                        <button type="button" onClick={() => removeImageAt(i)}
+                          style={{ position: 'absolute', top: -6, right: -6, width: 20, height: 20, borderRadius: '50%', border: 'none', background: '#ef4444', color: 'white', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>✕</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px', background: '#fce7f3', color: '#db2777', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 700, width: 'fit-content' }}>
+                  📁 Chọn ảnh
+                  <input type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={handleImageChange} />
+                </label>
+              </div>
             </div>
           </div>
           <div className="adm-form-group">
